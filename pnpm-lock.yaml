@@ -69,6 +69,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/feedback
 
+  examples/05-evaluators:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/evaluators':
+        specifier: workspace:*
+        version: link:../../packages/evaluators
+
   packages/core: {}
 
   packages/evaluators:

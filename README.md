@@ -80,6 +80,7 @@ See [Example 02](examples/02-neural-network-graph) and the
 - [`02-neural-network-graph`](examples/02-neural-network-graph) — the neural proof.
 - [`03-error-sensitivity-feedback`](examples/03-error-sensitivity-feedback) — error × sensitivity → feedback signal.
 - [`04-lifecycle-bridge`](examples/04-lifecycle-bridge) — generic observe → measure → evaluate → decide lifecycle.
+- [`05-evaluators`](examples/05-evaluators) — every generic evaluator (threshold, numeric error, exact match, composite).
 
 ## Documentation
 
