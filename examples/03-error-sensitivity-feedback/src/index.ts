@@ -1,62 +1,100 @@
 import { createEvaluator, createModelGraph } from "@composable-model-graph/core";
-import { sigmoid } from "@composable-model-graph/math";
+import {
+  DenseLayer,
+  errorSensitivity,
+  meanSquaredError,
+  sigmoid,
+} from "@composable-model-graph/math";
+import { numericErrorEvaluator } from "@composable-model-graph/evaluators";
 import { defaultFeedbackResolver } from "@composable-model-graph/feedback";
 
 /**
  * Example 03 — Error Sensitivity Feedback
  *
- *   x -> f(x) -> y_hat -> error -> f'(x) -> feedback
+ *   Input x
+ *     ↓
+ *   Transform f(x)
+ *     ↓
+ *   Prediction ŷ
+ *     ↓
+ *   Error E = y - ŷ
+ *     ↓
+ *   Sensitivity f'(x)
+ *     ↓
+ *   Update Signal = E · f'(x)
+ *     ↓
+ *   Feedback Action
  *
- * This is NOT training. It only exposes the feedback signal so the relationship
- * between error and sensitivity is visible:
+ * This is NOT training. It only makes the feedback signal explicit:
  *
- *   update signal = error * f'(x)
+ *   error       = how wrong the output is
+ *   sensitivity = how much change matters
+ *   E · f'      = the correction pressure
  */
 
-const x = 2;
-const target = 1;
-
-const sigmoidForward = {
-  id: "sigmoid-forward",
-  name: "Sigmoid Forward",
-  run: (input: number) => sigmoid.forward(input),
-};
-
-// Evaluate the signed error E = y - y_hat. We expose it via the optional
-// numeric `error` field (storing the magnitude) and a message with the sign.
-const signedErrorEvaluator = createEvaluator<number, number>({
-  id: "signed-error",
-  name: "Signed Error",
-  evaluate: (prediction, expected) => {
-    const error = expected - prediction;
-    return {
-      status: Math.abs(error) <= 0.1 ? "pass" : "fail",
-      error: Math.abs(error),
-      messages: [`E = y - y_hat = ${error}`],
-    };
-  },
+// Reuse the neural graph from example 02 so the prediction is real, not magic.
+const hiddenLayer = new DenseLayer({
+  id: "dense-4-2",
+  name: "Dense 4 -> 2",
+  inputSize: 4,
+  outputSize: 2,
+  weights: [
+    [0.1, -0.2],
+    [0.2, 0.1],
+    [-0.1, 0.05],
+    [0.05, 0.2],
+  ],
+  bias: [0, 0],
+  activation: sigmoid,
 });
 
-const graph = createModelGraph<number, number>({
+const outputLayer = new DenseLayer({
+  id: "dense-2-1",
+  name: "Dense 2 -> 1",
+  inputSize: 2,
+  outputSize: 1,
+  weights: [[0.3], [-0.4]],
+  bias: [0.1],
+  activation: sigmoid,
+});
+
+const graph = createModelGraph<number[], number[]>({
   id: "error-sensitivity",
   name: "Error Sensitivity",
-  transforms: [sigmoidForward],
-  evaluator: signedErrorEvaluator,
-  feedbackResolver: defaultFeedbackResolver<number, number>(),
+  transforms: [hiddenLayer, outputLayer],
+  evaluator: createEvaluator<number[], number[]>({
+    id: "mse",
+    name: "Mean Squared Error",
+    evaluate: (prediction, target, context) =>
+      numericErrorEvaluator({ passThreshold: 0.05 }).evaluate(
+        meanSquaredError.compute(prediction, target),
+        meanSquaredError.compute(prediction, target),
+        context,
+      ),
+  }),
+  feedbackResolver: defaultFeedbackResolver<number[], number[]>(),
 });
 
-const run = await graph.run(x, { target });
+const target = [1];
+const run = await graph.run([1, 2, 4, 5], { target });
 
-const yHat = run.output;
-const error = target - yHat;
-const derivative = sigmoid.derivative(x);
-const updateSignal = error * derivative;
+// The prediction is itself a sigmoid output, so its local sensitivity is the
+// output identity f'(x) = ŷ(1 - ŷ).
+const prediction = run.output[0] ?? 0;
+const signal = errorSensitivity(sigmoid, prediction, target[0] ?? 0);
 
-console.log("input x:        ", x);
-console.log("sigmoid f(x):   ", yHat);
-console.log("target y:       ", target);
-console.log("error (y - y_hat):", error);
-console.log("derivative f'(x):", derivative);
-console.log("update signal:  ", updateSignal, "(= error * f'(x))");
-console.log("\nevaluation:     ", JSON.stringify(run.evaluation));
+console.log("input x:        ", prediction);
+console.log("target y:       ", target[0]);
+console.log("prediction ŷ:   ", prediction);
+console.log("");
+console.log("error E:        ", signal.error);
+console.log("sigmoid f′:     ", signal.sensitivity);
+console.log("update signal:  ", signal.updateSignal, "(= E · f′)");
+console.log("");
+console.log("meaning:");
+console.log("  error tells us how wrong the output is");
+console.log("  f′ tells us how sensitive the transform is");
+console.log("  E · f′ gives the correction pressure");
+console.log("");
+console.log("evaluation:     ", JSON.stringify(run.evaluation));
 console.log("feedback:       ", JSON.stringify(run.feedback));

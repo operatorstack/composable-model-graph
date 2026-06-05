@@ -11,12 +11,43 @@ This is the conceptual bridge of the whole ecosystem.
 x → f(x) → ŷ → error → f′ → feedback
 ```
 
+Made explicit, every stage is its own inspectable value:
+
+```
+Input x
+  ↓
+Transform f(x)
+  ↓
+Prediction ŷ
+  ↓
+Error E = y - ŷ
+  ↓
+Sensitivity f′(x)
+  ↓
+Update Signal = E · f′(x)
+  ↓
+Feedback Action
+```
+
 - **x** — the input.
 - **f(x) = ŷ** — the prediction (forward pass).
 - **error = y − ŷ** — the gap between target and prediction.
 - **f′(x)** — the local sensitivity: how much the output moves when the input
   moves.
 - **update signal = error · f′(x)** — error scaled by sensitivity.
+
+### The sensitivity comes from the output
+
+For sigmoid, the derivative has a clean identity in terms of the output itself:
+
+```
+ŷ = f(x)        ⇒        f′(x) = ŷ (1 − ŷ)
+```
+
+This is what `errorSensitivity` in `@composable-model-graph/math` uses
+(`activation.derivativeFromOutput`): right after a forward pass you already
+hold `ŷ`, so you can read the sensitivity straight off the trace without
+recomputing the pre-activation.
 
 ## Why both terms matter
 
@@ -29,14 +60,19 @@ x → f(x) → ŷ → error → f′ → feedback
 
 ## Worked values
 
-Using the logistic sigmoid with `x = 2`, `target = 1`:
+Taking the prediction from [Example 02](../examples/02-neural-network-graph)
+(`ŷ ≈ 0.492144`, a sigmoid output) with `target = 1`:
 
 ```
-ŷ            = f(2)        ≈ 0.880797
-error        = 1 − ŷ       ≈ 0.119203
-f′(2)        = ŷ (1 − ŷ)   ≈ 0.104994
-update signal = error · f′(2) ≈ 0.012516
+ŷ             = 0.492144
+error E       = 1 − ŷ       ≈ 0.507856
+f′            = ŷ (1 − ŷ)   ≈ 0.249938
+update signal = E · f′       ≈ 0.126932
 ```
+
+The update signal is largest when the prediction is both wrong *and* sits in a
+sensitive region of the activation (near `ŷ = 0.5`), and it collapses to zero
+when either the error is zero or the activation is saturated (`f′ → 0`).
 
 ## Not training (yet)
 
@@ -47,5 +83,6 @@ scope for v1.
 ## Example
 
 See [Example 03 — Error Sensitivity Feedback](../examples/03-error-sensitivity-feedback),
-which prints `x`, `f(x)`, the target, the error, the derivative, and the
-`error · f′(x)` update signal.
+which runs the neural graph, then prints the prediction, the target, the error
+`E`, the sensitivity `f′`, and the `E · f′` update signal, before mapping the run
+to a feedback action.
