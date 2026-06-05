@@ -8,7 +8,16 @@ export interface ActivationFunction {
   id: string;
   name: string;
   forward(x: number): number;
+  /** Derivative evaluated at the pre-activation input `x`. */
   derivative(x: number): number;
+  /**
+   * Derivative expressed in terms of the activation's own output `y = f(x)`.
+   *
+   * This is the form backprop actually uses: once you have the output, you
+   * usually no longer need the pre-activation. For sigmoid this is the clean
+   * identity `f'(x) = y(1 - y)`.
+   */
+  derivativeFromOutput(y: number): number;
 }
 
 /**
@@ -27,6 +36,9 @@ export const sigmoid: ActivationFunction = {
     const f = this.forward(x);
     return f * (1 - f);
   },
+  derivativeFromOutput(y: number): number {
+    return y * (1 - y);
+  },
 };
 
 /**
@@ -44,6 +56,9 @@ export const relu: ActivationFunction = {
   derivative(x: number): number {
     return x > 0 ? 1 : 0;
   },
+  derivativeFromOutput(y: number): number {
+    return y > 0 ? 1 : 0;
+  },
 };
 
 /**
@@ -59,6 +74,9 @@ export const identity: ActivationFunction = {
     return x;
   },
   derivative(_x: number): number {
+    return 1;
+  },
+  derivativeFromOutput(_y: number): number {
     return 1;
   },
 };

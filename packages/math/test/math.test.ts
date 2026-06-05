@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   DenseLayer,
+  errorSensitivity,
   identity,
   meanSquaredError,
   relu,
@@ -45,6 +46,43 @@ describe("identity", () => {
   it("derivative is always 1", () => {
     expect(identity.derivative(7)).toBe(1);
     expect(identity.derivative(-4)).toBe(1);
+  });
+});
+
+describe("derivativeFromOutput", () => {
+  it("sigmoid uses the y(1 - y) identity", () => {
+    // For an output y, f'(x) = y(1 - y) regardless of x.
+    expect(sigmoid.derivativeFromOutput(0.5)).toBeCloseTo(0.25, 12);
+    expect(sigmoid.derivativeFromOutput(0.8)).toBeCloseTo(0.16, 12);
+  });
+
+  it("relu is 1 for positive outputs, 0 otherwise", () => {
+    expect(relu.derivativeFromOutput(3)).toBe(1);
+    expect(relu.derivativeFromOutput(0)).toBe(0);
+  });
+
+  it("identity is always 1", () => {
+    expect(identity.derivativeFromOutput(42)).toBe(1);
+  });
+});
+
+describe("errorSensitivity", () => {
+  it("exposes error, sensitivity, and update signal", () => {
+    const prediction = 0.4921444865067817;
+    const signal = errorSensitivity(sigmoid, prediction, 1);
+
+    expect(signal.error).toBeCloseTo(1 - prediction, 12);
+    expect(signal.sensitivity).toBeCloseTo(prediction * (1 - prediction), 12);
+    expect(signal.updateSignal).toBeCloseTo(
+      signal.error * signal.sensitivity,
+      12,
+    );
+  });
+
+  it("update signal is zero when the prediction hits the target", () => {
+    const signal = errorSensitivity(identity, 1, 1);
+    expect(signal.error).toBe(0);
+    expect(signal.updateSignal).toBe(0);
   });
 });
 
