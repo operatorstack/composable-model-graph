@@ -1,0 +1,48 @@
+Skill Routing — Graph A (naive) vs Graph B (structured)
+
+Per-task (expected | A | B):
+  Fix Stripe webhook idempotency failing test      payment-webhook-skill    A:ok   payment-webhook-skill    B:ok   payment-webhook-skill
+  Webhook endpoint returns 200 but charge not ma   payment-webhook-skill    A:ok   payment-webhook-skill    B:ok   payment-webhook-skill
+  Stripe signature verification rejects valid ev   payment-webhook-skill    A:ok   payment-webhook-skill    B:ok   payment-webhook-skill
+  Login session expires too early after refresh    auth-session-skill       A:FAIL payment-webhook-skill    B:ok   auth-session-skill
+  JWT token not validated on protected routes      auth-session-skill       A:FAIL payment-webhook-skill    B:ok   auth-session-skill
+  Users stay logged in after password reset        auth-session-skill       A:FAIL payment-webhook-skill    B:ok   auth-session-skill
+  Schema migration drops column on rollback        db-migration-skill       A:ok   db-migration-skill       B:ok   db-migration-skill
+  Postgres index not created after deploy          db-migration-skill       A:FAIL payment-webhook-skill    B:ok   db-migration-skill
+  Drizzle schema out of sync with database         db-migration-skill       A:FAIL payment-webhook-skill    B:ok   db-migration-skill
+  Form validation passes on empty required input   ui-form-skill            A:ok   ui-form-skill            B:ok   ui-form-skill
+  React component re-renders and clears field va   ui-form-skill            A:FAIL payment-webhook-skill    B:ok   ui-form-skill
+  Submit button stays disabled after valid entry   ui-form-skill            A:FAIL payment-webhook-skill    B:ok   ui-form-skill
+  Email template renders broken on mobile inbox    email-notification-skill A:ok   email-notification-skill B:ok   email-notification-skill
+  SMTP send fails silently for notification queu   email-notification-skill A:FAIL payment-webhook-skill    B:ok   email-notification-skill
+  Index page form submit triggers a payment char   ui-form-skill            A:ok   ui-form-skill            B:FAIL payment-webhook-skill
+
+Aggregate:
+  accuracy:   A 46.7%   B 93.3%   (+46.7pp)
+  tokens:     A 104        B 703
+  costUsd:    A 0.00208    B 0.01198
+  durationMs: A 0        B 1  (wall-clock; tiny for a static demo)
+
+Trace-level failure localization (Graph B):
+  failed runs: 1/15
+  of those, requirement-extraction succeeded in 1/1
+  => error enters at the 'select-skill' step, not 'extract-requirements'
+
+compareRuns — task "Login session expires too early after refresh" (B should win):
+  verdict:       b  (B has the better status (fail vs pass))
+  status:        A=fail B=pass
+  score delta:   1
+  tokens:        A=7 B=47 (delta 40)
+  costUsd:       A=0.00014 B=0.0008 (delta 0.00066)
+  diverged@step: 0
+
+compareRuns — task "Index page form submit triggers a payment charge" (A wins; B's tie-break weakness):
+  verdict:       a  (A has the better status (pass vs fail))
+  status:        A=pass B=fail
+  score delta:   -1
+  tokens:        A=8 B=49 (delta 41)
+  costUsd:       A=0.00016 B=0.00082 (delta 0.00066)
+  diverged@step: 0
+
+Reading: B is far more accurate but spends more tokens/cost (the registry context).
+The trace shows the tradeoff and where error enters — the system is inspectable, not vibe-based.
