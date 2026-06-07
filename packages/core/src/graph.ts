@@ -58,8 +58,16 @@ export function createModelGraph<I, O>(
       let current: unknown = input;
 
       for (const transform of transforms) {
+        const signals: Record<string, unknown> = {};
+        const stepContext: RunContext = {
+          ...context,
+          recordSignal: (key, value) => {
+            signals[key] = value;
+          },
+        };
+
         const startedAt = Date.now();
-        const output = await transform.run(current, context);
+        const output = await transform.run(current, stepContext);
         const finishedAt = Date.now();
 
         trace.push({
@@ -70,6 +78,7 @@ export function createModelGraph<I, O>(
           startedAt,
           finishedAt,
           durationMs: finishedAt - startedAt,
+          ...(Object.keys(signals).length > 0 ? { metadata: signals } : {}),
         });
 
         current = output;

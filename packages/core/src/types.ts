@@ -47,6 +47,14 @@ export interface RunContext {
   target?: unknown;
   /** Optional free-form metadata for the run. */
   metadata?: Record<string, unknown>;
+  /**
+   * Record a named signal on the trace step currently executing. The graph
+   * runner injects this per step; values land in {@link TraceStep.metadata}.
+   *
+   * This is a neutral carrier: the core attaches no meaning to the key or the
+   * value. Domains decide what to record (e.g. `tokens`, `costUsd`, `latencyMs`).
+   */
+  recordSignal?: (key: string, value: unknown) => void;
 }
 
 /** A pure-ish, named step that maps an input to an output. */
@@ -72,6 +80,11 @@ export interface TraceStep {
   finishedAt: number;
   /** `finishedAt - startedAt`, in milliseconds. */
   durationMs: number;
+  /**
+   * Optional signals recorded by the transform via {@link RunContext.recordSignal}.
+   * Omitted when the transform recorded nothing. The core attaches no meaning.
+   */
+  metadata?: Record<string, unknown>;
 }
 
 /** Scores a graph output against an optional target. */

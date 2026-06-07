@@ -78,6 +78,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/evaluators
 
+  examples/06-skill-routing:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/evaluators':
+        specifier: workspace:*
+        version: link:../../packages/evaluators
+
   packages/core: {}
 
   packages/evaluators:
