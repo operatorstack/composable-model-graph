@@ -87,6 +87,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/evaluators
 
+  examples/07-emergent-system-failures:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/evaluators':
+        specifier: workspace:*
+        version: link:../../packages/evaluators
+
   packages/core: {}
 
   packages/evaluators:

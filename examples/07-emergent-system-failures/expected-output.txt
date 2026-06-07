@@ -1,0 +1,107 @@
+Example 07 — Emergent System Failures
+local validity != system validity
+
+Three domains, one pattern: a node is locally valid but corrupts a graph-level relation.
+
+======================================================================
+Demo A — Sensor / signed-signal aggregation
+======================================================================
+
+  pipeline:        parse-measurements -> normalize-signal -> aggregate-state
+  input:           [100,-250,75,-10]
+  expected state:  -85
+  system output:   -65
+
+  Every node ran without error and returned valid shape:
+    parse-measurements   output=[100,-250,75,-10]
+    normalize-signal     output=[100,-250,75,10]
+    aggregate-state      output=-65
+
+  [1] Final Answer Check (needs a known target):
+    status=fail  (expected -85, got -65)
+    => detects THAT the system output is wrong, not WHERE.
+
+  [2] Node Contract Check (declared local expectations, read from the trace):
+    ok    parse-measurements
+    BROKE normalize-signal  (sign corrupted at index 3: -10 -> 10)
+    ok    aggregate-state
+    => trace localization: normalize-signal
+
+  [3] Trace Relation Check (no target, no declared contract):
+    expected relation: output(-x) == -output(x)
+    first break at step 1: normalize-signal
+      output(x)  = [100,-250,75,10]
+      output(-x) = [-100,250,-75,10]
+    => trace localization by inspecting the trace alone.
+
+  self-check: all relation/contract checks fired as expected.
+
+======================================================================
+Demo B — Dependency graph / execution ordering
+======================================================================
+
+  pipeline:        parse-dependencies -> normalize-edges -> topological-sort -> execution-plan
+  dependencies:
+    compile-api depends on generate-types
+    test-api depends on compile-api
+    deploy-api depends on test-api
+  correct plan:    generate-types -> compile-api -> test-api -> deploy-api
+  system plan:     compile-api -> generate-types -> test-api -> deploy-api
+
+  Every node ran without error and returned valid shape (nothing threw).
+
+  [1] Final Answer Check (needs the known-correct plan):
+    status=fail
+    => detects THAT the plan is wrong, not WHERE.
+
+  [2] Node Contract Check (declared local expectations, read from the trace):
+    ok    parse-dependencies
+    BROKE normalize-edges  (dependency direction corrupted: "compile-api depends on generate-types")
+    ok    topological-sort
+    ok    execution-plan
+    => trace localization: normalize-edges
+
+  [3] Trace Relation Check (no answer key — internal consistency):
+    expected relation: for every "A depends on B", index(B) < index(A)
+    violated: "compile-api depends on generate-types" but generate-types@1 is after compile-api@0
+    first node whose edges diverge from the parsed truth: normalize-edges
+    => trace localization: normalize-edges
+
+  self-check: all relation/contract checks fired as expected.
+
+======================================================================
+Demo C — Research / knowledge synthesis
+======================================================================
+
+  pipeline:        question -> retrieve-sources -> extract-claims -> synthesize-answer
+  question:        Is the new API ready to deploy?
+  retrieved:       s1->[c1]  s2->[c2]
+  answer:          c1@0.9  c2@0.9  c3@0.9
+  (no source supports c3, yet it is asserted at 0.9)
+
+  [1] Final Answer Check (needs a target: full evidence support):
+    support score=0.67  status=fail
+    => detects THAT the answer is under-supported, not WHERE.
+
+  [2] Node Contract Check (declared local expectations, read from the trace):
+    ok    retrieve-sources
+    ok    extract-claims
+    BROKE synthesize-answer  (claim c3 asserted at 0.9 with no supporting source)
+    => trace localization: synthesize-answer
+
+  [3] Trace Relation Check (no target — related runs):
+    expected relation: remove evidence for c1 => confidence(c1) decreases
+    confidence(c1): full=0.9  evidence-removed=0.9  (evidence dropped)
+    relation BROKEN: evidence fell but confidence did not.
+    => trace localization: synthesize-answer (it set confidence ignoring its evidence input)
+
+  self-check: all relation/contract checks fired as expected.
+
+======================================================================
+Summary
+======================================================================
+  PASS  sensor
+  PASS  dependency
+  PASS  research
+
+All three demos detected and localized their emergent failure.
