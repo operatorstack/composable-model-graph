@@ -82,6 +82,7 @@ See [Example 02](examples/02-neural-network-graph) and the
 - [`04-lifecycle-bridge`](examples/04-lifecycle-bridge) — generic observe → measure → evaluate → decide lifecycle.
 - [`05-evaluators`](examples/05-evaluators) — every generic evaluator (threshold, numeric error, exact match, composite).
 - [`06-skill-routing`](examples/06-skill-routing) — inspect + compare two routing graphs (naive vs structured) with recorded token/cost signals and `compareRuns`.
+- [`07-emergent-system-failures`](examples/07-emergent-system-failures) — `local validity != system validity`: three runnable domains (sensor signed-signal, dependency-graph ordering, research evidence-flow) where every node is locally valid yet the composition breaks a graph-level relation; each is detected + localized three ways (Final Answer, Node Contract, Trace Relation Check) with no core change.
 
 ## Documentation
 
