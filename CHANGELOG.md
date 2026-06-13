@@ -6,6 +6,32 @@ Change / Why / Domain influence / Languages.
 
 ## [Unreleased]
 
+### Useful-flow score (Phi = Q / C)
+- **Change:** `usefulFlowScore` plus `combineCost` / `combineQuality` in `core` (beside
+  `compareRuns`): score a run or configuration by useful output per unit cost.
+- **Why:** to compare configurations by whether they earn their cost (the simulation's
+  solved-per-dollar), the cheapest honest "which one is best?".
+- **Domain influence:** network flow / operations research (useful flow to an accepted sink).
+- **Languages:** typescript, python.
+
+### Sensitivity (finite-difference gradient)
+- **Change:** `sensitivity` plus `rankSensitivity` in `math` (beside `errorSensitivity`):
+  estimate d(objective)/d(knob) and rank knobs by impact, "what to tune next".
+- **Why:** once a config is scored, decide which knob to turn; the numerical complement to
+  the analytic `errorSensitivity`.
+- **Domain influence:** calculus / neural gradient / control-theory sensitivity.
+- **Languages:** typescript, python.
+
+### Example 08: system simulation
+- **Change:** `08-system-simulation` in both languages: sweep a parameterized pipeline, score
+  each config by Phi, pick the best, rank knobs by sensitivity. TS and Python output is
+  byte-identical; each ships a self-check + `expected-output.txt`. Added
+  `docs/05-useful-flow-and-sensitivity.md` (the math / principle, framed cross-domain).
+- **Why:** the use case that pulled the two primitives; the cmg-native simulation (config
+  what-if + sensitivity), distinct from intelligence-flow's flow / min-cut lane.
+- **Domain influence:** network flow + gradient, composed.
+- **Languages:** typescript, python.
+
 ### Restructure into a dual-language library
 - **Change:** the repository is now organized as `docs/` (language-agnostic) +
   `typescript/` (the existing pnpm workspace, moved as a unit so the build is

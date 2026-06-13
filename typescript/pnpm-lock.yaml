@@ -96,6 +96,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/evaluators
 
+  examples/08-system-simulation:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/math':
+        specifier: workspace:*
+        version: link:../../packages/math
+
   packages/core: {}
 
   packages/evaluators:
