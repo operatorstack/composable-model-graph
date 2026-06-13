@@ -1,129 +1,107 @@
 # Composable Model Graph
 
-Typed transformation graphs with trace, evaluation, and feedback.
+Typed transformation graphs with trace, evaluation, and feedback. A **dual-language**
+library: TypeScript and Python, kept at parity.
 
 ## Core shape
 
 ```
-input → transform → state/output → evaluation → feedback
+input -> transform -> state/output -> evaluation -> feedback
 ```
 
-## What this is not
+## Why it exists
 
-- **Not** an ML framework.
-- **Not** an agent framework.
-- **Not** a workflow engine.
-- **Not** a harness.
-- **Not** LangChain.
-- **Not** a graph database.
+A computer scientist and an aerospace engineer should both be able to pick this up
+and solve a problem with it, after a small investigation, without first learning the
+theory behind it. The deep ideas (control theory, network flow, neural
+error/feedback) inform the design; they are never the price of admission. The core
+stays domain-free so the same primitive serves unrelated fields. See
+[docs/philosophy.md](docs/philosophy.md) and, for how features earn their place,
+[docs/development.md](docs/development.md).
 
 ## What it is
 
-- Typed transforms.
-- Inspectable runs.
-- Traceable intermediate states.
-- Evaluation-first outputs.
-- Optional feedback actions.
+- Typed transforms, inspectable runs, traceable intermediate states.
+- Evaluation-first outputs and optional feedback actions.
+- A small set of generic primitives many systems can be built on.
 
-It is a small set of generic primitives. Many different systems can be built on
-top of them. This repository deliberately ships only the primitives.
+## What this is not
 
-## Diagram
+Not an ML framework, an agent framework, a workflow engine, a harness, LangChain, or
+a graph database. This repository ships only the primitives; domains sit on top as
+examples or feature packages.
 
-```
-Input
-  ↓
-Transform
-  ↓
-State
-  ↓
-Transform
-  ↓
-Output
-  ↓
-Evaluation
-  ↓
-Feedback
-  ↓
-Next Run
-```
+## Layout
 
-## The key primitive
+This is a dual-language repo (see [docs/structure.md](docs/structure.md)):
 
 ```
-Transform + Trace + Evaluation + Feedback
+docs/         language-agnostic: design, philosophy, development discipline
+typescript/   the TypeScript implementation (pnpm workspace: packages + examples)
+python/       the Python implementation (src layout)
+CHANGELOG.md  the reasoning trail, one entry per change
 ```
 
-## The key proof
-
-```
-input vector → neural transforms → prediction → error → sensitivity → feedback
-```
-
-The first mathematical proof of the primitive is a neural-network forward pass
-(`packages/math`) wired through error-based evaluation and a feedback action.
-See [Example 02](examples/02-neural-network-graph) and the
-[neural-network architecture doc](docs/02-neural-network-architecture.md).
-
-## Packages
+## Packages (both languages, at parity)
 
 | Package | Description |
 | --- | --- |
-| [`@composable-model-graph/core`](packages/core) | Primitive layer: transforms, traceable runs, evaluation, feedback. |
-| [`@composable-model-graph/math`](packages/math) | Neural-network proof: activations, losses, dense layers. |
-| [`@composable-model-graph/evaluators`](packages/evaluators) | Generic evaluators returning `EvaluationResult`. |
-| [`@composable-model-graph/feedback`](packages/feedback) | Generic feedback resolvers. |
+| `core` | Primitive layer: transforms, traceable runs, evaluation, feedback. The runner is sequential by default and a general DAG where a use case needs it. |
+| `math` | Neural proof: activations (forward + derivative), losses, sensitivity. |
+| `evaluators` | Generic evaluators returning an evaluation result. |
+| `feedback` | Generic feedback resolvers. |
 
-## Examples
-
-- [`01-core-pipeline`](examples/01-core-pipeline) — linear string pipeline with a trace.
-- [`02-neural-network-graph`](examples/02-neural-network-graph) — the neural proof.
-- [`03-error-sensitivity-feedback`](examples/03-error-sensitivity-feedback) — error × sensitivity → feedback signal.
-- [`04-lifecycle-bridge`](examples/04-lifecycle-bridge) — generic observe → measure → evaluate → decide lifecycle.
-- [`05-evaluators`](examples/05-evaluators) — every generic evaluator (threshold, numeric error, exact match, composite).
-- [`06-skill-routing`](examples/06-skill-routing) — inspect + compare two routing graphs (naive vs structured) with recorded token/cost signals and `compareRuns`.
-- [`07-emergent-system-failures`](examples/07-emergent-system-failures) — `local validity != system validity`: three runnable domains (sensor signed-signal, dependency-graph ordering, research evidence-flow) where every node is locally valid yet the composition breaks a graph-level relation; each is detected + localized three ways (Final Answer, Node Contract, Trace Relation Check) with no core change.
-
-## Documentation
-
-- [00 — Overview](docs/00-overview.md)
-- [01 — Core primitive](docs/01-core-primitive.md)
-- [02 — Neural-network architecture](docs/02-neural-network-architecture.md)
-- [03 — Error, sensitivity, feedback](docs/03-error-sensitivity-feedback.md)
-- [04 — Harness bridge](docs/04-harness-bridge.md)
+TypeScript ships all four today. Python ships a real `core` + `math.sigmoid` now, with
+`evaluators` / `feedback` reaching parity as features land.
 
 ## Getting started
 
-This is a [pnpm](https://pnpm.io/) workspace.
+TypeScript (a [pnpm](https://pnpm.io/) workspace):
 
 ```bash
+cd typescript
 pnpm install
-pnpm build
-pnpm test
 pnpm typecheck
+pnpm --filter @composable-model-graph/example-01-core-pipeline start
 ```
 
-Run an example (after `pnpm build`):
+Python (the core is dependency-free, no install needed):
 
 ```bash
-pnpm --filter @composable-model-graph/example-02-neural-network-graph start
+cd python
+python3 tests/test_smoke.py
+# or, after `pip install -e .[dev]`:  python3 -m pytest
 ```
 
-## Repository scripts
+## Examples (TypeScript)
 
-| Script | Action |
-| --- | --- |
-| `pnpm build` | `pnpm -r build` |
-| `pnpm test` | `pnpm -r test` |
-| `pnpm typecheck` | `pnpm -r typecheck` |
+In [`typescript/examples/`](typescript/examples):
+
+- `01-core-pipeline` - linear string pipeline with a trace.
+- `02-neural-network-graph` - the neural proof.
+- `03-error-sensitivity-feedback` - error times sensitivity to a feedback signal.
+- `04-lifecycle-bridge` - generic observe, measure, evaluate, decide lifecycle.
+- `05-evaluators` - every generic evaluator (threshold, numeric error, exact match, composite).
+- `06-skill-routing` - compare two routing graphs with recorded cost signals and `compareRuns`.
+- `07-emergent-system-failures` - local validity is not system validity: three domains where each node is valid yet the composition breaks a graph-level relation.
+
+## Documentation
+
+- [00 - Overview](docs/00-overview.md)
+- [01 - Core primitive](docs/01-core-primitive.md)
+- [02 - Neural-network architecture](docs/02-neural-network-architecture.md)
+- [03 - Error, sensitivity, feedback](docs/03-error-sensitivity-feedback.md)
+- [04 - Harness bridge](docs/04-harness-bridge.md)
+- [Philosophy](docs/philosophy.md) - why it exists, the bar it holds to.
+- [Development discipline](docs/development.md) - how features earn their place (parity, use-case-pulled).
+- [Structure](docs/structure.md) - the dual-language layout.
 
 ## Design constraints
 
-- TypeScript, ESM, strict typing.
-- Small APIs. No over-engineering.
-- Linear graphs only (no branching in v1).
-- Forward pass only (no backprop in v1).
-- No harness, agent, workflow, goal, skill, or company-specific concepts.
+- Dual-language: every capability ships in TypeScript and Python, at parity.
+- Small APIs. No over-engineering. Theory informs design; the API exposes simple capabilities.
+- Linearity is a default, not a limit: the runner is sequential by default and a general DAG where a use case needs it.
+- The core stays generic: no harness, agent, workflow, goal, skill, or company-specific concepts.
 
 ## License
 
