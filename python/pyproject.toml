@@ -1,0 +1,21 @@
+[project]
+name = "composable-model-graph"
+version = "0.1.0"
+description = "Typed transformation graphs with trace, evaluation, and feedback (Python). The software lane of the model-graph stack."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "OperatorStack" }]
+# The core is intentionally dependency-free so the primitive stays usable without
+# an install. Feature packages may add deps in their own follow-up PRs.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/composable_model_graph"]
