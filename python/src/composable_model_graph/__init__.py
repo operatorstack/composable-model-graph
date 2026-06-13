@@ -13,10 +13,14 @@ from .core import (
     RunContext,
     TraceStep,
     Transform,
+    UsefulFlowScore,
+    combine_cost,
+    combine_quality,
     create_model_graph,
     create_transform,
+    useful_flow_score,
 )
-from .math import relu, sigmoid
+from .math import rank_sensitivity, relu, sensitivity, sigmoid
 
 __all__ = [
     "Transform",
@@ -27,7 +31,13 @@ __all__ = [
     "ModelGraph",
     "Connection",
     "create_model_graph",
+    "UsefulFlowScore",
+    "useful_flow_score",
+    "combine_cost",
+    "combine_quality",
     "sigmoid",
     "relu",
+    "sensitivity",
+    "rank_sensitivity",
 ]
 __version__ = "0.1.0"

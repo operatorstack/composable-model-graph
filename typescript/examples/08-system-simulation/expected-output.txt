@@ -1,0 +1,20 @@
+1. SWEEP  -  Phi = quality / cost across effort (best earns its cost)
+   effort 1: quality 0.142  cost 2.70  Phi 0.053
+   effort 2: quality 0.310  cost 3.20  Phi 0.097
+   effort 3: quality 0.550  cost 3.70  Phi 0.149
+   effort 4: quality 0.769  cost 4.20  Phi 0.183
+   effort 5: quality 0.900  cost 4.70  Phi 0.192
+   effort 6: quality 0.961  cost 5.20  Phi 0.185
+   best: effort 5 (Phi 0.192). Beyond it, cost outruns quality.
+
+2. SENSITIVITY  -  d(Phi)/d(knob) at the current config (what to tune next)
+   effort       gradient 0.0517  -> raise it
+   verifyDepth  gradient 0.0134  -> raise it
+   parallelism  gradient -0.0091  -> lower it
+   tune first: effort (largest magnitude).
+
+   ok   sweep picks effort 5
+   ok   sensitivity ranks effort first
+   ok   graph Phi agrees with model Phi
+
+PASS

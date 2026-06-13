@@ -1,0 +1,14 @@
+{
+  "name": "@composable-model-graph/example-08-system-simulation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@composable-model-graph/core": "workspace:*",
+    "@composable-model-graph/math": "workspace:*"
+  }
+}

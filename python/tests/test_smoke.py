@@ -14,7 +14,9 @@ from composable_model_graph import (  # noqa: E402
     Connection,
     create_model_graph,
     create_transform,
+    rank_sensitivity,
     sigmoid,
+    useful_flow_score,
 )
 
 
@@ -54,8 +56,26 @@ def test_sigmoid_forward_and_derivative() -> None:
     assert abs(sigmoid.derivative_from_output(0.5) - 0.25) < 1e-9
 
 
+def test_useful_flow_score() -> None:
+    s = useful_flow_score(0.8, 4.0)
+    assert abs(s.score - 0.2) < 1e-9
+    assert useful_flow_score(1.0, 0.0).score == 0.0  # cost 0 -> 0, no blow-up
+
+
+def test_rank_sensitivity_orders_by_impact() -> None:
+    # objective depends strongly on a, weakly on b -> a ranks first
+    def objective(k):
+        return 10.0 * k["a"] + 0.1 * k["b"]
+
+    ranked = rank_sensitivity({"a": 1.0, "b": 1.0}, objective)
+    assert ranked[0].name == "a"
+    assert abs(ranked[0].gradient - 10.0) < 1e-6
+
+
 if __name__ == "__main__":
     test_linear_graph_and_signals()
     test_non_linear_graph_merges_predecessors()
     test_sigmoid_forward_and_derivative()
+    test_useful_flow_score()
+    test_rank_sensitivity_orders_by_impact()
     print("PASS: composable-model-graph python smoke")
