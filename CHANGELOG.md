@@ -32,6 +32,19 @@ Change / Why / Domain influence / Languages.
 - **Domain influence:** network flow + gradient, composed.
 - **Languages:** typescript, python.
 
+### Example 09: best time to implement
+- **Change:** `09-best-time-to-implement` in both languages: a backlog modeled as a
+  dependency graph that schedules itself. Readiness (deps met), Phi = value / cost over
+  the ready set, the longest-cost critical path, and sensitivity for "what unblocks the
+  most". A cmg `ModelGraph` (`assess -> classify -> prioritize`) produces the plan; the
+  `assess` stage is the seam where a model later judges state from evidence. TS and Python
+  output is byte-identical; ships a self-check + `expected-output.txt`.
+- **Why:** the "best time to implement, not a flat to-do list" use case; reuses
+  `usefulFlowScore` + `rankSensitivity` on a task graph, proven deterministically before
+  any AI is embedded.
+- **Domain influence:** dependency-DAG scheduling (critical path) + useful flow + gradient.
+- **Languages:** typescript, python.
+
 ### Restructure into a dual-language library
 - **Change:** the repository is now organized as `docs/` (language-agnostic) +
   `typescript/` (the existing pnpm workspace, moved as a unit so the build is
