@@ -1,0 +1,52 @@
+Best-time-to-implement (AI-assessed): the model judges state from evidence, the graph schedules
+mode: stub   (set MODEL to use a real model, e.g. vertex_ai/minimaxai/minimax-m2-maas)
+
+1. ASSESS  -  the model reads each task's evidence and judges its state
+   scaffold        done  v3 c1  conf 0.95  scaffold + build config committed
+   ci              todo  v5 c2  conf 0.90  no workflow file; Actions empty
+   auth            todo  v8 c4  conf 0.90  no auth module; login issue open
+   storage-adapter todo  v4 c3  conf 0.60  code on an open PR (#142), not merged
+   api-docs        todo  v3 c1  conf 0.85  docs are a TODO stub
+   move-assets     todo  v8 c2  conf 0.90  bucket empty; no assets command
+   tests           todo  v5 c3  conf 0.90  tests dir empty; no CI test step
+   ship-v1         todo  v10 c2  conf 0.95  no release tag; milestone 0%
+
+2. STATE  -  done / ready / blocked, from the assessed state + dependencies
+   done    scaffold        Set up project scaffold
+   ready   ci              Set up CI                       Phi 2.50
+   ready   auth            Add authentication              Phi 2.00
+   ready   storage-adapter Build the storage adapter       Phi 1.33
+   blocked api-docs        Write API docs                  until: auth
+   blocked move-assets     Move assets into object storage until: storage-adapter
+   blocked tests           Write integration tests         until: auth, storage-adapter
+   blocked ship-v1         Ship v1                         until: ci, api-docs, move-assets, tests
+
+3. DO NOW  -  the ready set by Phi = value / cost (what earns its cost first)
+   1. ci              Phi 2.50  (value 5, cost 2)
+   2. auth            Phi 2.00  (value 8, cost 4)
+   3. storage-adapter Phi 1.33  (value 4, cost 3)
+
+4. CRITICAL PATH  -  the longest dependency chain by cost (it sets the finish time)
+   scaffold -> auth -> tests -> ship-v1   cost 10
+   on it: auth, tests, ship-v1. Start these early even if their Phi is not the highest.
+
+5. WHAT UNBLOCKS THE MOST  -  sensitivity: completing X raises total available value/cost
+   storage-adapter +4.00  (unblocks move-assets)
+   auth            +3.00  (unblocks api-docs)
+   ci              +0.00
+   api-docs        +0.00
+   move-assets     +0.00
+   tests           +0.00
+   ship-v1         +0.00
+   tune first: storage-adapter (largest unblock).
+
+6. SELF-CHECK
+   ok   ready tasks have all deps done (invariant)
+   ok   blocked tasks have an unmet dep (invariant)
+   ok   do-now is the highest-Phi ready task (invariant)
+   ok   [stub] ready set is auth, ci, storage-adapter
+   ok   [stub] do-now top is ci
+   ok   [stub] critical path scaffold -> auth -> tests -> ship-v1 (cost 10)
+   ok   [stub] top unblock is storage-adapter
+
+PASS

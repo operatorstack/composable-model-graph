@@ -1,0 +1,14 @@
+# Live mode only. The default (stub) run needs nothing but the standard library.
+#
+# Mirrors how intelligence-flow runs terminal-bench calls: LiteLLM with model-string
+# routing, so the provider is one env var (MODEL).
+litellm>=1.88
+
+# For MODEL=vertex_ai/*  (GCP Vertex MaaS, e.g. minimax / qwen) also install:
+#     pip install google-cloud-aiplatform
+# and authenticate with Application Default Credentials:
+#     gcloud auth application-default login        # or a VM service account
+#     export VERTEXAI_PROJECT=<your-project> VERTEXAI_LOCATION=global
+#
+# For regular providers, just set the matching key:
+#     OPENROUTER_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY

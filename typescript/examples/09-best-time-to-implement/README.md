@@ -91,3 +91,10 @@ Critical path here counts summed task cost (a stand-in for duration); sensitivit
 evaluated at the current done/not-done state, so it surfaces the immediate unblocks
 (the last remaining blocker of a downstream task) rather than the full transitive
 chain. Swap in your own backlog and the same four readouts apply.
+
+## Next
+
+This is the deterministic half. [Example 10](../../python/examples/10-best-time-to-implement-ai)
+fills the task state with a real model at the `assess` seam, and its README closes with the
+takeaways: what this way of working (prove it first, then add AI) buys you versus how the same
+feature usually gets built.
