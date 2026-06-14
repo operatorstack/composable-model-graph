@@ -45,6 +45,17 @@ Change / Why / Domain influence / Languages.
 - **Domain influence:** dependency-DAG scheduling (critical path) + useful flow + gradient.
 - **Languages:** typescript, python.
 
+### Example 11: recover a hidden parameter (inverse problem)
+- **Change:** `11-inverse-parameter` (python): recover an unknown physical constant (thermal
+  conductivity k) from noisy data + a closed-form forward model, using cmg `sensitivity`
+  (dLoss/dk) + gradient descent. No neural network, no autodiff. One evaluation is a cmg
+  `ModelGraph` (forward -> residual -> loss); ships a self-check + `expected-output.txt`.
+- **Why:** show the inverse-problem core (the parameter-recovery half of an inverse PINN) needs no
+  network when a forward model exists; a second use case for `sensitivity` after the planner, and it
+  surfaces a candidate primitive (an iterative recover / fit loop) without adding it to core yet.
+- **Domain influence:** classical inverse problems / parameter estimation (least squares) + the gradient lane.
+- **Languages:** python (typescript parity to follow).
+
 ### Restructure into a dual-language library
 - **Change:** the repository is now organized as `docs/` (language-agnostic) +
   `typescript/` (the existing pnpm workspace, moved as a unit so the build is
