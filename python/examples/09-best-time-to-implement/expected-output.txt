@@ -1,0 +1,39 @@
+Best-time-to-implement: a task graph that schedules itself (the AI judges state later)
+
+1. STATE  -  done, ready, or blocked, derived from dependencies
+   done    scaffold        Set up project scaffold
+   ready   ci              Set up CI                       Phi 2.50
+   ready   auth            Add authentication              Phi 2.00
+   ready   storage-adapter Build the storage adapter       Phi 1.33
+   blocked api-docs        Write API docs                  until: auth
+   blocked move-assets     Move assets into object storage until: storage-adapter
+   blocked tests           Write integration tests         until: auth, storage-adapter
+   blocked ship-v1         Ship v1                         until: ci, api-docs, move-assets, tests
+
+2. DO NOW  -  the ready set by Phi = value / cost (what earns its cost first)
+   1. ci              Phi 2.50  (value 5, cost 2)
+   2. auth            Phi 2.00  (value 8, cost 4)
+   3. storage-adapter Phi 1.33  (value 4, cost 3)
+
+3. CRITICAL PATH  -  the longest dependency chain by cost (it sets the finish time)
+   scaffold -> auth -> tests -> ship-v1   cost 10
+   on it: auth, tests, ship-v1. Start these early even if their Phi is not the highest.
+
+4. WHAT UNBLOCKS THE MOST  -  sensitivity: completing X raises total available value/cost
+   storage-adapter +4.00  (unblocks move-assets)
+   auth            +3.00  (unblocks api-docs)
+   ci              +0.00
+   api-docs        +0.00
+   move-assets     +0.00
+   tests           +0.00
+   ship-v1         +0.00
+   tune first: storage-adapter (largest unblock).
+
+5. SELF-CHECK
+   ok   ready set is auth, ci, storage-adapter
+   ok   do-now top is ci (highest Phi)
+   ok   move-assets blocked until storage-adapter
+   ok   critical path is scaffold -> auth -> tests -> ship-v1 (cost 10)
+   ok   top unblock is storage-adapter
+
+PASS

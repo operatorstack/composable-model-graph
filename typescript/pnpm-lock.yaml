@@ -105,6 +105,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/math
 
+  examples/09-best-time-to-implement:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/math':
+        specifier: workspace:*
+        version: link:../../packages/math
+
   packages/core: {}
 
   packages/evaluators:
