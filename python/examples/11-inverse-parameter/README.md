@@ -1,5 +1,8 @@
 # Example 11: Recover a hidden parameter (the inverse problem, no neural net)
 
+> Want the full math walkthrough (forward model, loss, finite-difference sensitivity, the
+> update step worked out)? See [EXPLAINER.md](./EXPLAINER.md).
+
 ## The problem
 
 You have a physical system governed by an equation, you can measure it (noisily), but one
