@@ -45,6 +45,20 @@ Change / Why / Domain influence / Languages.
 - **Domain influence:** dependency-DAG scheduling (critical path) + useful flow + gradient.
 - **Languages:** typescript, python.
 
+### Example 10: AI judges state (best time to implement)
+- **Change:** `10-best-time-to-implement-ai` (python): the AI version of example 09. Each task
+  carries a `done_when` + simulated detector `evidence`; the `assess` stage is now a real
+  model-call transform (LiteLLM model-string routing) that judges `{status, value, cost}`, and
+  the example-09 scheduler consumes it UNCHANGED. Runs offline via a deterministic stub
+  (committed `expected-output.txt`); live via `MODEL` (Vertex MaaS / OpenRouter / OpenAI /
+  Gemini). The LLM adapter lives in the example, never in `core`.
+- **Why:** demonstrate the model-call transform (capability gap #1) the right way, and the seam
+  pattern: prove the graph deterministically (09), then add AI at a clean seam (10) without
+  touching the scheduler.
+- **Domain influence:** the discernment thesis (the model judges fuzzy state; the graph computes
+  the exact, inspectable schedule).
+- **Languages:** python (typescript parity deferred).
+
 ### Restructure into a dual-language library
 - **Change:** the repository is now organized as `docs/` (language-agnostic) +
   `typescript/` (the existing pnpm workspace, moved as a unit so the build is

@@ -1,0 +1,48 @@
+Best-time-to-implement (AI-assessed): the model judges state from evidence, the graph schedules
+mode: live:vertex_ai/minimaxai/minimax-m2-maas   (set MODEL to use a real model, e.g. vertex_ai/minimaxai/minimax-m2-maas)
+
+1. ASSESS  -  the model reads each task's evidence and judges its state
+   scaffold        done  v8 c3  conf 0.95  Repo has initial commit, package.json, tsconfig, and build config.
+   ci              todo  v9 c3  conf 0.95  No GitHub Actions workflow exists to run tests on push to main.
+   auth            todo  v9 c6  conf 0.90  No auth module in src/ and issue #12 'add login' is still open.
+   storage-adapter todo  v8 c4  conf 0.90  PR is open with green CI but not yet merged to main.
+   api-docs        todo  v9 c5  conf 0.95  docs/ contains only a TODO stub and no API reference page.
+   move-assets     todo  v8 c5  conf 0.90  Assets not moved; bucket empty and no push mechanism.
+   tests           todo  v8 c5  conf 0.95  tests/ directory is empty; CI has no test step
+   ship-v1         todo  v8 c7  conf 0.95  No release tag and milestone 'v1' is 0% complete.
+
+2. STATE  -  done / ready / blocked, from the assessed state + dependencies
+   done    scaffold        Set up project scaffold
+   ready   ci              Set up CI                       Phi 3.00
+   ready   storage-adapter Build the storage adapter       Phi 2.00
+   ready   auth            Add authentication              Phi 1.50
+   blocked api-docs        Write API docs                  until: auth
+   blocked move-assets     Move assets into object storage until: storage-adapter
+   blocked tests           Write integration tests         until: auth, storage-adapter
+   blocked ship-v1         Ship v1                         until: ci, api-docs, move-assets, tests
+
+3. DO NOW  -  the ready set by Phi = value / cost (what earns its cost first)
+   1. ci              Phi 3.00  (value 9, cost 3)
+   2. storage-adapter Phi 2.00  (value 8, cost 4)
+   3. auth            Phi 1.50  (value 9, cost 6)
+
+4. CRITICAL PATH  -  the longest dependency chain by cost (it sets the finish time)
+   scaffold -> auth -> api-docs -> ship-v1   cost 21
+   on it: auth, api-docs, ship-v1. Start these early even if their Phi is not the highest.
+
+5. WHAT UNBLOCKS THE MOST  -  sensitivity: completing X raises total available value/cost
+   auth            +1.80  (unblocks api-docs)
+   storage-adapter +1.60  (unblocks move-assets)
+   ci              +0.00
+   api-docs        +0.00
+   move-assets     +0.00
+   tests           +0.00
+   ship-v1         +0.00
+   tune first: auth (largest unblock).
+
+6. SELF-CHECK
+   ok   ready tasks have all deps done (invariant)
+   ok   blocked tasks have an unmet dep (invariant)
+   ok   do-now is the highest-Phi ready task (invariant)
+
+PASS
