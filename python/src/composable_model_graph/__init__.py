@@ -20,7 +20,14 @@ from .core import (
     create_transform,
     useful_flow_score,
 )
-from .math import rank_sensitivity, relu, sensitivity, sigmoid
+from .math import (
+    TransferFunction,
+    create_transfer_function,
+    rank_sensitivity,
+    relu,
+    sensitivity,
+    sigmoid,
+)
 
 __all__ = [
     "Transform",
@@ -39,5 +46,7 @@ __all__ = [
     "relu",
     "sensitivity",
     "rank_sensitivity",
+    "TransferFunction",
+    "create_transfer_function",
 ]
 __version__ = "0.1.0"
