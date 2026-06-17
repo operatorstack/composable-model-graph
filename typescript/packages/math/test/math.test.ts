@@ -7,6 +7,7 @@ import {
   meanSquaredError,
   relu,
   sigmoid,
+  TransferFunction,
 } from "@composable-model-graph/math";
 
 describe("sigmoid", () => {
@@ -146,5 +147,31 @@ describe("DenseLayer", () => {
           activation: identity,
         }),
     ).toThrow();
+  });
+});
+
+describe("TransferFunction", () => {
+  it("applies a static gain (single tap, no denominator)", () => {
+    const g = new TransferFunction({ id: "gain", name: "2x", b: [2], a: [] });
+    expect(g.run([1, 2, 3])).toEqual([2, 4, 6]);
+  });
+
+  it("delays the input by one step with b = [0, 1]", () => {
+    const d = new TransferFunction({ id: "delay", name: "q^-1", b: [0, 1], a: [] });
+    expect(d.run([1, 2, 3])).toEqual([0, 1, 2]);
+  });
+
+  it("realizes a first-order recursive impulse response", () => {
+    // y(t) = u(t) + 0.5 y(t-1) -> impulse response 1, 0.5, 0.25, 0.125, ...
+    const g = new TransferFunction({ id: "iir", name: "1/(1-0.5q^-1)", b: [1], a: [-0.5] });
+    const out = g.run([1, 0, 0, 0]);
+    expect(out[0]).toBeCloseTo(1, 12);
+    expect(out[1]).toBeCloseTo(0.5, 12);
+    expect(out[2]).toBeCloseTo(0.25, 12);
+    expect(out[3]).toBeCloseTo(0.125, 12);
+  });
+
+  it("throws when no numerator coefficient is given", () => {
+    expect(() => new TransferFunction({ id: "bad", name: "bad", b: [], a: [] })).toThrow();
   });
 });

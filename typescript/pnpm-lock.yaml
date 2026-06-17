@@ -114,6 +114,24 @@ importers:
         specifier: workspace:*
         version: link:../../packages/math
 
+  examples/10-superposition-modulation:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/math':
+        specifier: workspace:*
+        version: link:../../packages/math
+
+  examples/11-transfer-function-id:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/math':
+        specifier: workspace:*
+        version: link:../../packages/math
+
   packages/core: {}
 
   packages/evaluators:
