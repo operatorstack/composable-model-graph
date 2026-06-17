@@ -7,6 +7,7 @@ from .sensitivity import (
     rank_sensitivity,
     sensitivity,
 )
+from .transfer_function import TransferFunction, create_transfer_function
 
 __all__ = [
     "Activation",
@@ -16,4 +17,6 @@ __all__ = [
     "KnobSensitivity",
     "sensitivity",
     "rank_sensitivity",
+    "TransferFunction",
+    "create_transfer_function",
 ]

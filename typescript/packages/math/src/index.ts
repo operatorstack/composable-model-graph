@@ -6,3 +6,5 @@ export type { DenseLayerConfig } from "./dense-layer.js";
 export { DenseLayer, createDenseLayer } from "./dense-layer.js";
 export type { SensitivitySignal, Sensitivity, KnobSensitivity } from "./sensitivity.js";
 export { errorSensitivity, sensitivity, rankSensitivity } from "./sensitivity.js";
+export type { TransferFunctionConfig } from "./transfer-function.js";
+export { TransferFunction, createTransferFunction } from "./transfer-function.js";

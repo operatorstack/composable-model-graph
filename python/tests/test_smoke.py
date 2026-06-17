@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from composable_model_graph import (  # noqa: E402
     Connection,
+    TransferFunction,
     create_model_graph,
     create_transform,
     rank_sensitivity,
@@ -72,10 +73,32 @@ def test_rank_sensitivity_orders_by_impact() -> None:
     assert abs(ranked[0].gradient - 10.0) < 1e-6
 
 
+def test_transfer_function() -> None:
+    # static gain: b=[2], a=[] -> y = 2u
+    g = TransferFunction(id="gain", name="2x", b=[2.0], a=[])
+    assert g.run([1.0, 2.0, 3.0]) == [2.0, 4.0, 6.0]
+    # one-step delay: b=[0, 1] -> y(t) = u(t-1)
+    d = TransferFunction(id="delay", name="q^-1", b=[0.0, 1.0], a=[])
+    assert d.run([1.0, 2.0, 3.0]) == [0.0, 1.0, 2.0]
+    # first-order recursive: y(t) = u(t) + 0.5 y(t-1) -> 1, 0.5, 0.25, 0.125
+    r = TransferFunction(id="iir", name="1/(1-0.5q^-1)", b=[1.0], a=[-0.5])
+    out = r.run([1.0, 0.0, 0.0, 0.0])
+    assert abs(out[0] - 1.0) < 1e-12 and abs(out[1] - 0.5) < 1e-12
+    assert abs(out[2] - 0.25) < 1e-12 and abs(out[3] - 0.125) < 1e-12
+    # requires at least b0
+    raised = False
+    try:
+        TransferFunction(id="bad", name="bad", b=[], a=[])
+    except ValueError:
+        raised = True
+    assert raised
+
+
 if __name__ == "__main__":
     test_linear_graph_and_signals()
     test_non_linear_graph_merges_predecessors()
     test_sigmoid_forward_and_derivative()
     test_useful_flow_score()
     test_rank_sensitivity_orders_by_impact()
+    test_transfer_function()
     print("PASS: composable-model-graph python smoke")

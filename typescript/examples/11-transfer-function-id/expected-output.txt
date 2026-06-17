@@ -1,0 +1,18 @@
+1. TRUE SYSTEM  -  an LTI transfer function G(q) = B(q)/A(q)
+   b (numerator)  : [1.0000, 0.5000]
+   a (denominator): [-1.5000, 0.7000]   (poles |.| = 0.837 < 1, stable)
+
+2. IDENTIFY  -  ARX least squares (linear in a,b -> closed form, no autodiff)
+   recovered b: [1.0000, 0.5000]
+   recovered a: [-1.5000, 0.7000]
+
+3. SIMULATE  -  identified filter on fresh input vs the true system
+   RMSE: ~0 (machine precision)    fit: 100.0000%
+
+   ok   recovered b matches true b
+   ok   recovered a matches true a
+   ok   coefficient error is ~0
+   ok   simulation RMSE ~ 0
+   ok   fit > 99.99%
+
+PASS

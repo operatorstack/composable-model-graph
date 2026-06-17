@@ -1,0 +1,24 @@
+1. DNS TRUTH  -  u' = superposition (A*g) + modulation (B*g*h)
+   A (superposition) = 1.00   B (modulation) = 0.80   N = 240
+
+2. LINEAR (LSE)  -  one affine model, no gating
+   recovered superposition slope (g): 1.000  (true A = 1.00)
+   small-scale slope (h):             0.000  (modulation invisible -> ~0)
+   RMSE vs DNS: 0.4000   <- the residual IS the modulation it misses
+
+3. BLEND  -  superposition (local affine) + modulation (membership over g)
+   readout: each region's small-scale slope tracks the large scale = modulation
+     region g~=-0.80   h-slope  -0.636   (B*g ~= -0.640)
+     region g~=-0.40   h-slope  -0.414   (B*g ~= -0.320)
+     region g~= 0.00   h-slope  -0.000   (B*g ~= 0.000)
+     region g~= 0.40   h-slope   0.414   (B*g ~= 0.320)
+     region g~= 0.80   h-slope   0.636   (B*g ~= 0.640)
+   RMSE vs DNS: 0.0865   (linear was 0.4000)
+
+   ok   linear recovers superposition slope (g ~= A)
+   ok   linear cannot see modulation (h slope ~= 0)
+   ok   blend beats linear (RMSE < half)
+   ok   modulation recovered (h-slope rises with g)
+   ok   high region slope tracks B (> 0.3)
+
+PASS
