@@ -1,0 +1,28 @@
+Estimation in a ModelGraph: local evidence vs sequence coherence
+
+readings:     1 1 2 5 2 1 1
+ground truth: 1 1 2 3 2 1 1
+
+Graph A - trust each reading (transitionWeight=0)
+  path:       1 1 2 5 2 1 1
+  trace:      build-trellis -> decode-path -> summarize
+  pathScore:  0
+  evaluation: fail (score=0)
+  feedback:   retry (evaluation failed)
+
+Graph B - prefer a coherent path (transitionWeight=1)
+  path:       1 1 2 3 2 1 1
+  trace:      build-trellis -> decode-path -> summarize
+  pathScore:  -8
+  evaluation: pass (score=1)
+  feedback:   accept (evaluation passed)
+
+compareRuns(A, B)
+  verdict:       b (B has the better status (fail vs pass))
+  score delta:   1
+  pathScore:     A=0 B=-8 delta=-8
+  diverged@step: 1 (decode-path)
+
+Reading: the graph makes the estimator measurable and actionable. The trace
+locates the first difference at decode-path; evaluation prefers B's coherent
+path, and feedback changes from retry to accept.

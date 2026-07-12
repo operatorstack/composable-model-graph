@@ -36,6 +36,22 @@ Change / Why / Domain influence / Languages.
 - **Domain influence:** tracking, hidden-state inference, text decoding.
 - **Languages:** typescript, python.
 
+### Example 16: estimation inside an inspectable graph
+- **Change:** dual-language `16-estimation-in-the-graph` composes a three-step
+  `ModelGraph` (`build-trellis -> decode-path -> summarize`) with the
+  `estimation` package. The decoder records `pathScore`; an exact-match
+  evaluator checks the recovered sequence against ground truth; default
+  feedback maps failure to retry and success to accept; `compareRuns` contrasts
+  `transitionWeight` 0 and 1 by verdict, score delta, signal delta, and first
+  divergent trace step. TypeScript and Python output is byte-identical.
+- **Why:** examples 13-15 prove the estimator is domain-independent; this
+  example proves it stays composable without coupling `estimation` to `core`.
+  A decoded path becomes traceable, measurable, actionable, and comparable
+  using the existing package boundaries.
+- **Domain influence:** sequential estimation composed with
+  evaluation-and-feedback system design.
+- **Languages:** typescript, python.
+
 ### Python parity: evaluation, feedback, comparison
 - **Change:** the Python core gains `Evaluator` / `EvaluationResult` / `Evidence` /
   `FeedbackResolver` / `FeedbackAction` (with `create_evaluator` / `create_feedback_resolver`),

@@ -132,6 +132,18 @@ importers:
         specifier: workspace:*
         version: link:../../packages/math
 
+  examples/12-fan-out-merge:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/evaluators':
+        specifier: workspace:*
+        version: link:../../packages/evaluators
+      '@composable-model-graph/feedback':
+        specifier: workspace:*
+        version: link:../../packages/feedback
+
   examples/13-track-snapping:
     dependencies:
       '@composable-model-graph/estimation':
@@ -149,6 +161,21 @@ importers:
       '@composable-model-graph/estimation':
         specifier: workspace:*
         version: link:../../packages/estimation
+
+  examples/16-estimation-in-the-graph:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/estimation':
+        specifier: workspace:*
+        version: link:../../packages/estimation
+      '@composable-model-graph/evaluators':
+        specifier: workspace:*
+        version: link:../../packages/evaluators
+      '@composable-model-graph/feedback':
+        specifier: workspace:*
+        version: link:../../packages/feedback
 
   packages/core: {}
 
