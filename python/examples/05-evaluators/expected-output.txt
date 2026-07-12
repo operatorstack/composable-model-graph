@@ -1,0 +1,18 @@
+== threshold_evaluator ==
+at_least(0.5) <- 0.8               status=pass  score=1.0000
+at_least(0.5) <- 0.2               status=fail  score=0.0000
+at_most(100) <- 80                 status=pass  score=1.0000
+at_most(100) <- 150                status=fail  score=0.0000
+
+== numeric_error_evaluator ==
+error 0.05 (pass)                  status=pass  score=0.9524  error=0.05
+error 0.30 (partial)               status=partial  score=0.7692  error=0.3
+error 1.00 (fail)                  status=fail  score=0.5000  error=1.0
+
+== exact_match_evaluator ==
+[1,2,3] vs [1,2,3]                 status=pass  score=1.0000
+[1,2,3] vs [1,2,4]                 status=fail  score=0.0000
+
+== composite_evaluator ==
+floor(0.5) + ceiling(1) <- 0.8     status=fail  score=0.5000
+  messages: ['value 0.8 meets threshold 0.5 (at_least)', 'value 0.8 misses threshold 1 (at_least)']

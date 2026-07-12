@@ -4,15 +4,32 @@ Sequential by default; a general DAG when connections are given. Linearity is a
 DEFAULT, not a limit: pass `connections` to run an arbitrary directed acyclic
 graph (fan-out, merge). The library is not restricted to a pipeline; the
 structure follows the use case.
+
+After the transforms run (either mode), an optional Evaluator judges the final
+output and an optional FeedbackResolver maps the run to a next action; both land
+on the returned GraphRun.
 """
 
 from __future__ import annotations
 
 import time
+import uuid
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from .types import GraphRun, RunContext, TraceStep, Transform
+from .types import (
+    Evaluator,
+    FeedbackResolver,
+    GraphRun,
+    RunContext,
+    TraceStep,
+    Transform,
+)
+
+
+def _now_ms() -> float:
+    """Wall-clock epoch milliseconds (mirrors the TypeScript Date.now timing)."""
+    return time.time_ns() / 1e6
 
 
 @dataclass
@@ -29,26 +46,46 @@ class ModelGraph:
     name: str
     transforms: list[Transform]
     connections: Optional[list[Connection]] = None
+    evaluator: Optional[Evaluator] = None
+    feedback_resolver: Optional[FeedbackResolver] = None
 
-    def run(self, input: Any, target: Any = None, run_id: str = "run") -> GraphRun:
-        ctx = RunContext(run_id=run_id, target=target)
+    def run(
+        self,
+        input: Any,
+        target: Any = None,
+        run_id: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> GraphRun:
+        ctx = RunContext(
+            run_id=run_id if run_id is not None else str(uuid.uuid4()),
+            target=target,
+            metadata=metadata or {},
+        )
         if not self.connections:
-            return self._run_sequential(input, ctx)
-        return self._run_dag(input, ctx)
+            run = self._run_sequential(input, ctx)
+        else:
+            run = self._run_dag(input, ctx)
+        if self.evaluator is not None:
+            run.evaluation = self.evaluator.evaluate(run.output, ctx.target, ctx)
+        if self.feedback_resolver is not None:
+            run.feedback = self.feedback_resolver.resolve(run, ctx)
+        return run
 
     def _step(self, t: Transform, value: Any, ctx: RunContext) -> TraceStep:
         sink: dict[str, Any] = {}
         ctx._signal_sink = sink
-        start = time.perf_counter()
+        started_at = _now_ms()
         out = t.run(value, ctx)
-        duration_ms = (time.perf_counter() - start) * 1000.0
+        finished_at = _now_ms()
         ctx._signal_sink = None
         return TraceStep(
             transform_id=t.id,
             transform_name=t.name,
             input=value,
             output=out,
-            duration_ms=duration_ms,
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_ms=finished_at - started_at,
             metadata=sink,
         )
 
@@ -63,6 +100,12 @@ class ModelGraph:
 
     def _run_dag(self, input: Any, ctx: RunContext) -> GraphRun:
         by_id = {t.id: t for t in self.transforms}
+        for c in self.connections or []:
+            for tid in (c.src, c.dst):
+                if tid not in by_id:
+                    raise ValueError(
+                        f"connection references unknown transform id: {tid}"
+                    )
         preds: dict[str, list[str]] = {tid: [] for tid in by_id}
         succs: dict[str, list[str]] = {tid: [] for tid in by_id}
         for c in self.connections or []:
@@ -107,7 +150,14 @@ def create_model_graph(
     name: str,
     transforms: list[Transform],
     connections: Optional[list[Connection]] = None,
+    evaluator: Optional[Evaluator] = None,
+    feedback_resolver: Optional[FeedbackResolver] = None,
 ) -> ModelGraph:
     return ModelGraph(
-        id=id, name=name, transforms=list(transforms), connections=connections
+        id=id,
+        name=name,
+        transforms=list(transforms),
+        connections=connections,
+        evaluator=evaluator,
+        feedback_resolver=feedback_resolver,
     )

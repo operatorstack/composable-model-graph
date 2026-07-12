@@ -42,9 +42,9 @@ python3 tests/test_smoke.py        # no install needed (the core is dependency-f
 ## Parity rule
 
 A capability ships in both `typescript/` and `python/`, with matching names and
-behavior (see `development.md`). The current Python side is a scaffold plus a real
-minimal core (`Transform`, the runner, `sigmoid`); the remaining packages reach
-parity as features land.
+behavior (see `development.md`). Both sides now ship `core` (transforms, the
+sequential/DAG runner, evaluation, feedback, comparison), `math`, `evaluators`,
+and `feedback` at parity; new capabilities land in lockstep.
 
 ## Two languages, one design
 

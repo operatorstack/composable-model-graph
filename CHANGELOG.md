@@ -36,6 +36,36 @@ Change / Why / Domain influence / Languages.
 - **Domain influence:** tracking, hidden-state inference, text decoding.
 - **Languages:** typescript, python.
 
+### Python parity: evaluation, feedback, comparison
+- **Change:** the Python core gains `Evaluator` / `EvaluationResult` / `Evidence` /
+  `FeedbackResolver` / `FeedbackAction` (with `create_evaluator` / `create_feedback_resolver`),
+  `GraphRun.evaluation` / `.feedback`, `TraceStep.started_at` / `.finished_at`, and
+  `compare_runs` (+ `RunComparison`, `SignalDelta`); the `evaluators` and `feedback`
+  packages are real ports (threshold, numeric-error, exact-match, composite, deep-equal;
+  default and threshold resolvers), same names, defaults, and messages as TypeScript.
+  Python `ModelGraph.run` now invokes an attached evaluator/feedback resolver, and its
+  `run_id` defaults to a generated UUID (parity with the TypeScript runner). Ports
+  examples `05-evaluators` and `06-skill-routing` to Python.
+- **Why:** the parity rule — the TypeScript side has shipped evaluation/feedback/compare
+  from the start; the Python packages were explicit placeholders promising this port.
+  Every Python graph can now be scored, acted on, and compared, not just run.
+- **Domain influence:** evaluation-first design (measurement before action) + the
+  neural feedback lane.
+- **Languages:** python (typescript unchanged; it already ships these).
+
+### DAG runner in TypeScript (Connection)
+- **Change:** `createModelGraph` accepts `connections?: Connection[]` and runs an
+  arbitrary DAG (Kahn topological order; a merge node receives the array of its
+  predecessors' outputs; a cycle throws; a connection naming an unknown transform id
+  throws). No connections = the existing linear run, unchanged. Evaluation and feedback
+  apply to DAG runs too. Identical semantics to the Python runner, which gains the same
+  clear error for an unknown connection id. New dual example `12-fan-out-merge`.
+- **Why:** the parity rule, the other direction — Python has run DAGs since the
+  restructure ("linearity is a default, not a limit"); TypeScript now honors the same
+  sentence. Pulled concretely by example 12 (fan-out to two estimators, then reconcile).
+- **Domain influence:** dependency-DAG scheduling / dataflow graphs.
+- **Languages:** typescript (new), python (unknown-id error-message alignment).
+
 ### Useful-flow score (Phi = Q / C)
 - **Change:** `usefulFlowScore` plus `combineCost` / `combineQuality` in `core` (beside
   `compareRuns`): score a run or configuration by useful output per unit cost.

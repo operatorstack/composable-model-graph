@@ -4,21 +4,29 @@ The Python side of composable-model-graph. Parity with the TypeScript side
 (`../typescript`) is the rule: new capabilities ship in both languages (see
 `../docs/development.md`).
 
-This first cut is a real, dependency-free core (so the primitive is usable without
-an install), proving the dual-language structure rather than just declaring it.
+A real, dependency-free core (so the primitive is usable without an install),
+at parity with the TypeScript side.
 
 ## What is here
 
 - `composable_model_graph.core` - `Transform`, `create_transform`, `ModelGraph` /
-  `create_model_graph`, `RunContext` (with `record_signal`), `TraceStep`, `GraphRun`.
+  `create_model_graph`, `RunContext` (with `record_signal`), `TraceStep`, `GraphRun`,
+  the evaluation/feedback types (`Evaluator`, `EvaluationResult`, `Evidence`,
+  `FeedbackResolver`, `FeedbackAction`, with `create_evaluator` /
+  `create_feedback_resolver`), and `compare_runs` (`RunComparison`, `SignalDelta`).
   The runner is **sequential by default and a general DAG when you pass
-  `connections`** (linearity is a default, not a limit).
+  `connections`** (linearity is a default, not a limit), and it invokes an attached
+  evaluator / feedback resolver after the transforms run.
+- `composable_model_graph.evaluators` - `threshold_evaluator`,
+  `numeric_error_evaluator`, `exact_match_evaluator`, `composite_evaluator`,
+  `deep_equal`.
+- `composable_model_graph.feedback` - `default_feedback_resolver`,
+  `threshold_feedback_resolver`.
 - `composable_model_graph.math` - `sigmoid` / `relu` with `forward`, `derivative`,
-  `derivative_from_output` (the neural-proof lane).
+  `derivative_from_output` (the neural-proof lane), `sensitivity` / `rank_sensitivity`,
+  `TransferFunction`.
 - `composable_model_graph.estimation` - `decode_path` / `decode_path_fixed_lag`
   over `CandidateState` trellises (Viterbi / fixed-lag), domain-free.
-- `composable_model_graph.evaluators`, `.feedback` - placeholders; ported with
-  parity in follow-up feature PRs.
 
 ## Run the smoke test
 
@@ -37,5 +45,5 @@ python3 -m pytest
 
 ## Status
 
-Scaffold + a minimal real core. Features (evaluators, feedback, comparison,
-simulation) land next, in lockstep with the TypeScript side.
+At parity with TypeScript on core, evaluators, feedback, comparison, and math.
+New capabilities continue to land in lockstep across both languages.

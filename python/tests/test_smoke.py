@@ -13,8 +13,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from composable_model_graph import (  # noqa: E402
     Connection,
     TransferFunction,
+    compare_runs,
     create_model_graph,
     create_transform,
+    default_feedback_resolver,
+    numeric_error_evaluator,
     rank_sensitivity,
     sigmoid,
     useful_flow_score,
@@ -94,6 +97,22 @@ def test_transfer_function() -> None:
     assert raised
 
 
+def test_evaluated_graph_end_to_end() -> None:
+    # a graph that is run, judged, acted on, and compared against a rival run
+    t = create_transform("residual", "Residual", lambda x, ctx: x)
+    graph = create_model_graph(
+        "e2e", "evaluated", [t],
+        evaluator=numeric_error_evaluator(pass_threshold=1.0),
+        feedback_resolver=default_feedback_resolver(),
+    )
+    good = graph.run(0.5)  # error 0.5 -> pass -> accept
+    bad = graph.run(5.0)  # error 5.0 -> fail -> retry
+    assert good.evaluation.status == "pass" and good.feedback.kind == "accept"
+    assert bad.evaluation.status == "fail" and bad.feedback.kind == "retry"
+    comparison = compare_runs(good, bad)
+    assert comparison.better == "a"  # pass beats fail
+
+
 if __name__ == "__main__":
     test_linear_graph_and_signals()
     test_non_linear_graph_merges_predecessors()
@@ -101,4 +120,5 @@ if __name__ == "__main__":
     test_useful_flow_score()
     test_rank_sensitivity_orders_by_impact()
     test_transfer_function()
+    test_evaluated_graph_end_to_end()
     print("PASS: composable-model-graph python smoke")
