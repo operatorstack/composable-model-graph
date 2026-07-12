@@ -20,6 +20,13 @@ from .core import (
     create_transform,
     useful_flow_score,
 )
+from .estimation import (
+    CandidateState,
+    DecodedPath,
+    DecodedStep,
+    decode_path,
+    decode_path_fixed_lag,
+)
 from .math import (
     TransferFunction,
     create_transfer_function,
@@ -48,5 +55,10 @@ __all__ = [
     "rank_sensitivity",
     "TransferFunction",
     "create_transfer_function",
+    "CandidateState",
+    "DecodedStep",
+    "DecodedPath",
+    "decode_path",
+    "decode_path_fixed_lag",
 ]
 __version__ = "0.1.0"

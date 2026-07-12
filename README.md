@@ -50,9 +50,9 @@ CHANGELOG.md  the reasoning trail, one entry per change
 | `math` | Neural proof: activations (forward + derivative), losses, sensitivity. |
 | `evaluators` | Generic evaluators returning an evaluation result. |
 | `feedback` | Generic feedback resolvers. |
+| `estimation` | Decode the best path through per-step candidate states (trellis / Viterbi / fixed-lag). |
 
-TypeScript ships all four today. Python ships a real `core` + `math.sigmoid` now, with
-`evaluators` / `feedback` reaching parity as features land.
+Every package ships in both languages at parity.
 
 ## Getting started
 
@@ -73,9 +73,10 @@ python3 tests/test_smoke.py
 # or, after `pip install -e .[dev]`:  python3 -m pytest
 ```
 
-## Examples (TypeScript)
+## Examples
 
-In [`typescript/examples/`](typescript/examples):
+In [`typescript/examples/`](typescript/examples) and, where ported, in
+[`python/examples/`](python/examples) (byte-identical output):
 
 - `01-core-pipeline` - linear string pipeline with a trace.
 - `02-neural-network-graph` - the neural proof.
@@ -84,6 +85,7 @@ In [`typescript/examples/`](typescript/examples):
 - `05-evaluators` - every generic evaluator (threshold, numeric error, exact match, composite).
 - `06-skill-routing` - compare two routing graphs with recorded cost signals and `compareRuns`.
 - `07-emergent-system-failures` - local validity is not system validity: three domains where each node is valid yet the composition breaks a graph-level relation.
+- `13-track-snapping`, `14-hidden-regime`, `15-typo-decode` - the `estimation` primitive in three unrelated fields (tracking, hidden-state inference, text). (ts, python)
 
 ## Documentation
 
@@ -92,6 +94,8 @@ In [`typescript/examples/`](typescript/examples):
 - [02 - Neural-network architecture](docs/02-neural-network-architecture.md)
 - [03 - Error, sensitivity, feedback](docs/03-error-sensitivity-feedback.md)
 - [04 - Harness bridge](docs/04-harness-bridge.md)
+- [05 - Useful flow and sensitivity](docs/05-useful-flow-and-sensitivity.md)
+- [06 - Sequential estimation](docs/06-sequential-estimation.md)
 - [Philosophy](docs/philosophy.md) - why it exists, the bar it holds to.
 - [Development discipline](docs/development.md) - how features earn their place (parity, use-case-pulled).
 - [Structure](docs/structure.md) - the dual-language layout.

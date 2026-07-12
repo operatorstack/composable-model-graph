@@ -1,0 +1,12 @@
+Typo decoding: recover the intended word from a mistyped one
+
+  typed:                 c h s i r   ("chsir")
+  weight 0 (per-key):    c h s i r   ("chsir")
+  weight 1 (+ bigrams):  c h a i r   ("chair")
+
+  correction:
+    position 2: typed 's' -> 'a' (neighbour that fits the allowed bigrams)
+
+Reading: read key by key, the slip stands ('chsir'). Read as a word, the
+neighbour 'a' pays one key penalty but removes two disallowed letter pairs -
+so the decode recovers 'chair'.
