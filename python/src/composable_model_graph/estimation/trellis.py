@@ -118,11 +118,13 @@ def _forward(
 def _argmax_final(cum: list[list[float]]) -> int:
     last = cum[-1]
     best = _NEG_INF
-    best_j = 0
+    best_j = -1
     for j in range(len(last)):
         if last[j] > best:
             best = last[j]
             best_j = j
+    if best_j < 0 or best == _NEG_INF:
+        raise ValueError("trellis has no reachable path")
     return best_j
 
 
@@ -130,7 +132,10 @@ def _backtrack(back: list[list[int]], t: int, j: int) -> list[int]:
     idx = [0] * (t + 1)
     idx[t] = j
     for s in range(t, 0, -1):
-        idx[s - 1] = back[s][idx[s]]
+        prev = back[s][idx[s]]
+        if prev < 0:
+            raise ValueError("trellis has no reachable path")
+        idx[s - 1] = prev
     return idx
 
 
