@@ -51,7 +51,8 @@ you may read them as log-likelihoods if that suits your problem, but the decoder
 is a linear-chain energy maximizer, nothing more. The package has **no
 dependency on the rest of the library** — it is a pure algorithm over plain
 data. Composing it with `ModelGraph`, evaluators, and feedback is shown in an
-example, not baked into the primitive.
+example, not baked into the primitive. See `16-estimation-in-the-graph` in the
+TypeScript and Python example directories.
 
 ## Worked example (the number you can check by hand)
 

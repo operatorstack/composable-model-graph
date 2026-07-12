@@ -88,6 +88,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `08-system-simulation`, `09-best-time-to-implement`, `10-superposition-modulation`, `11-transfer-function-id` - later single-primitive studies.
 - `12-fan-out-merge` - a DAG (fan-out to two estimators, merge, reconcile) with evaluation + feedback. (ts, python)
 - `13-track-snapping`, `14-hidden-regime`, `15-typo-decode` - the `estimation` primitive in three unrelated fields (tracking, hidden-state inference, text). (ts, python)
+- `16-estimation-in-the-graph` - compose estimation with a traceable graph, evaluation, feedback, signals, and run comparison. (ts, python)
 
 ## Documentation
 
