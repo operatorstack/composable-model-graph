@@ -1,10 +1,14 @@
-"""Feedback (Python port pending parity).
+"""Feedback: generic resolvers mapping an evaluation to a next action.
 
-The TypeScript package ships default / threshold feedback resolvers that map an
-evaluation to an action (accept / retry / adjust / reject / custom). They are
-ported here in a follow-up feature PR, with parity to TypeScript, because every
-capability ships in BOTH languages (see docs/development.md). This module is an
-intentional placeholder until then.
+Python parity of the TypeScript feedback package: default (status -> action) and
+threshold (score -> action) resolvers. Same names and behavior (see
+docs/development.md — every capability ships in BOTH languages).
 """
 
-__all__: list[str] = []
+from .default import default_feedback_resolver
+from .threshold import threshold_feedback_resolver
+
+__all__ = [
+    "default_feedback_resolver",
+    "threshold_feedback_resolver",
+]

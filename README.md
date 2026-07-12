@@ -51,8 +51,7 @@ CHANGELOG.md  the reasoning trail, one entry per change
 | `evaluators` | Generic evaluators returning an evaluation result. |
 | `feedback` | Generic feedback resolvers. |
 
-TypeScript ships all four today. Python ships a real `core` + `math.sigmoid` now, with
-`evaluators` / `feedback` reaching parity as features land.
+Both languages ship all four packages at parity.
 
 ## Getting started
 
@@ -73,17 +72,20 @@ python3 tests/test_smoke.py
 # or, after `pip install -e .[dev]`:  python3 -m pytest
 ```
 
-## Examples (TypeScript)
+## Examples
 
-In [`typescript/examples/`](typescript/examples):
+In [`typescript/examples/`](typescript/examples) and, where ported, in
+[`python/examples/`](python/examples) (byte-identical output):
 
 - `01-core-pipeline` - linear string pipeline with a trace.
 - `02-neural-network-graph` - the neural proof.
 - `03-error-sensitivity-feedback` - error times sensitivity to a feedback signal.
 - `04-lifecycle-bridge` - generic observe, measure, evaluate, decide lifecycle.
-- `05-evaluators` - every generic evaluator (threshold, numeric error, exact match, composite).
-- `06-skill-routing` - compare two routing graphs with recorded cost signals and `compareRuns`.
+- `05-evaluators` - every generic evaluator (threshold, numeric error, exact match, composite). (ts, python)
+- `06-skill-routing` - compare two routing graphs with recorded cost signals and `compareRuns`. (ts, python)
 - `07-emergent-system-failures` - local validity is not system validity: three domains where each node is valid yet the composition breaks a graph-level relation.
+- `08-system-simulation`, `09-best-time-to-implement`, `10-superposition-modulation`, `11-transfer-function-id` - later single-primitive studies.
+- `12-fan-out-merge` - a DAG (fan-out to two estimators, merge, reconcile) with evaluation + feedback. (ts, python)
 
 ## Documentation
 

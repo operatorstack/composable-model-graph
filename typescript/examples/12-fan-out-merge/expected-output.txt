@@ -1,0 +1,40 @@
+Fan-out + merge: reconcile two independent estimates of one reading
+
+reading 10
+  trace:
+    Physics model      in=10           out=35
+    Empirical table    in=10           out=35
+    Reconcile estimates in=[35, 35]     out=0
+  reconciled estimate: 35
+  evaluation: pass  score=1.0000  error=0
+  feedback: accept  (evaluation passed)
+
+reading 20
+  trace:
+    Physics model      in=20           out=65
+    Empirical table    in=20           out=67
+    Reconcile estimates in=[65, 67]     out=2
+  reconciled estimate: 66
+  evaluation: pass  score=0.3333  error=2
+  feedback: accept  (evaluation passed)
+
+reading 30
+  trace:
+    Physics model      in=30           out=95
+    Empirical table    in=30           out=95
+    Reconcile estimates in=[95, 95]     out=0
+  reconciled estimate: 95
+  evaluation: pass  score=1.0000  error=0
+  feedback: accept  (evaluation passed)
+
+reading 40
+  trace:
+    Physics model      in=40           out=125
+    Empirical table    in=40           out=145
+    Reconcile estimates in=[125, 145]   out=20
+  reconciled estimate: 135
+  evaluation: fail  score=0.0476  error=20
+  feedback: retry  (evaluation failed)
+
+Reading: physics and empirical agree on 10/20/30 (accept the reconciled value);
+they diverge at 40 (disagreement 20 -> fail -> retry: the models flag a bad reading).

@@ -144,11 +144,22 @@ export interface ModelGraphRunOptions {
   metadata?: Record<string, unknown>;
 }
 
-/** A linear, inspectable composition of transforms with optional evaluation and feedback. */
+/** A directed edge from one transform to another (by id). */
+export interface Connection {
+  src: string;
+  dst: string;
+}
+
+/**
+ * An inspectable composition of transforms with optional evaluation and
+ * feedback. Sequential by default; a general DAG when `connections` are given.
+ * Linearity is a default, not a limit.
+ */
 export interface ModelGraph<I, O> {
   id: string;
   name: string;
   transforms: ReadonlyArray<AnyTransform>;
+  connections?: ReadonlyArray<Connection>;
   evaluator?: Evaluator<O>;
   feedbackResolver?: FeedbackResolver<I, O>;
   run(input: I, options?: ModelGraphRunOptions): Promise<GraphRun<I, O>>;
