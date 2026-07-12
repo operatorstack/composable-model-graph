@@ -1,0 +1,22 @@
+Track snapping: fit a noisy 1-D sensor track to a discrete grid
+
+  readings (grid 0..5):          1 1 2 5 2 1 1   <- spike at step 3
+
+  weight 0 (trust each reading): 1 1 2 5 2 1 1   total 0
+  weight 1 (stay coherent):      1 1 2 3 2 1 1   total -8
+  fixed-lag 0 (causal filter):   1 1 1 3 2 1 1   total -11
+  fixed-lag 2 (2-step lookahead): 1 1 2 3 2 1 1   total -8
+
+  per-step split (weight 1): level  score  transitionCost  cumulative
+    step 0  level 1     0     0          0
+    step 1  level 1     0     0          0
+    step 2  level 2     0     1          -1
+    step 3  level 3    -4     1          -6
+    step 4  level 2     0     1          -7
+    step 5  level 1     0     1          -8
+    step 6  level 1     0     0          -8
+
+Reading: with free transitions the snap copies the sensor and takes the spike
+up to level 5; with a transition penalty it holds the track and reads the spike
+as noise. Full lookahead sees the spike is a detour; the causal filter is the
+cheapest build and commits from the past alone.

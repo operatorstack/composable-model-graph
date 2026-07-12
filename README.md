@@ -50,8 +50,9 @@ CHANGELOG.md  the reasoning trail, one entry per change
 | `math` | Neural proof: activations (forward + derivative), losses, sensitivity. |
 | `evaluators` | Generic evaluators returning an evaluation result. |
 | `feedback` | Generic feedback resolvers. |
+| `estimation` | Decode the best path through per-step candidate states (trellis / Viterbi / fixed-lag). |
 
-Both languages ship all four packages at parity.
+Every package ships in both languages at parity.
 
 ## Getting started
 
@@ -86,6 +87,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `07-emergent-system-failures` - local validity is not system validity: three domains where each node is valid yet the composition breaks a graph-level relation.
 - `08-system-simulation`, `09-best-time-to-implement`, `10-superposition-modulation`, `11-transfer-function-id` - later single-primitive studies.
 - `12-fan-out-merge` - a DAG (fan-out to two estimators, merge, reconcile) with evaluation + feedback. (ts, python)
+- `13-track-snapping`, `14-hidden-regime`, `15-typo-decode` - the `estimation` primitive in three unrelated fields (tracking, hidden-state inference, text). (ts, python)
 
 ## Documentation
 
@@ -94,6 +96,8 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - [02 - Neural-network architecture](docs/02-neural-network-architecture.md)
 - [03 - Error, sensitivity, feedback](docs/03-error-sensitivity-feedback.md)
 - [04 - Harness bridge](docs/04-harness-bridge.md)
+- [05 - Useful flow and sensitivity](docs/05-useful-flow-and-sensitivity.md)
+- [06 - Sequential estimation](docs/06-sequential-estimation.md)
 - [Philosophy](docs/philosophy.md) - why it exists, the bar it holds to.
 - [Development discipline](docs/development.md) - how features earn their place (parity, use-case-pulled).
 - [Structure](docs/structure.md) - the dual-language layout.

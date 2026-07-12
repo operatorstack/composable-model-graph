@@ -6,6 +6,36 @@ Change / Why / Domain influence / Languages.
 
 ## [Unreleased]
 
+### estimation: decode the best path through per-step candidates
+- **Change:** a new `estimation` package in both languages. `CandidateState`
+  (id, score, optional value), a `TransitionCost` callback, `decodePath`
+  (full-path / Viterbi) and `decodePathFixedLag` (causal; lag 0 = greedy
+  filtering, lag >= T-1 == full decode). The result is inspectable: per-step
+  chosen state, its score, the transition cost paid, the cumulative score, and
+  the total path score. `transitionWeight = 0` degenerates to the independent
+  per-step argmax. Zero dependencies (not even `core`); stdlib-only in Python.
+  Added `docs/06-sequential-estimation.md`.
+- **Why:** many sequential problems reduce to "each step has scored candidates,
+  and consecutive choices should cohere" — tracking a state through noise,
+  labeling a hidden-state sequence, correcting a typed string. The library had a
+  primitive for per-step evaluation but none for the *sequence-level* best
+  answer.
+- **Domain influence:** dynamic programming on a trellis (Viterbi decoding,
+  hidden Markov models, fixed-lag smoothing from estimation / control).
+- **Languages:** typescript, python.
+
+### Examples 13-15: estimation in three unrelated fields
+- **Change:** dual-language examples `13-track-snapping` (a noisy 1-D sensor
+  snapped to a grid), `14-hidden-regime` (a machine's hidden operating regime
+  inferred from sensor symbols), and `15-typo-decode` (a mistyped word recovered
+  via keyboard neighbours + an allowed-bigram model). Each contrasts
+  `transitionWeight` 0 vs 1 (and 13 shows fixed-lag), is deterministic, and ships
+  `expected-output.txt` with byte-identical TS/Python output.
+- **Why:** the use cases that pulled the primitive, and proof that it is
+  domain-independent — three fields, one decoder, no shared machinery.
+- **Domain influence:** tracking, hidden-state inference, text decoding.
+- **Languages:** typescript, python.
+
 ### Python parity: evaluation, feedback, comparison
 - **Change:** the Python core gains `Evaluator` / `EvaluationResult` / `Evidence` /
   `FeedbackResolver` / `FeedbackAction` (with `create_evaluator` / `create_feedback_resolver`),

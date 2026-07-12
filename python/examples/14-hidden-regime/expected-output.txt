@@ -1,0 +1,13 @@
+Hidden regime: infer idle / normal / overload from sensor symbols
+
+  observed symbols:  low  high  high  mid  high  high  low
+
+  weight 0 (per-symbol):   idle  overload  overload  normal  overload  overload  idle
+  weight 1 (with regime):  idle  overload  overload  overload  overload  overload  idle
+
+  the divergent tick:
+    step 3 saw "mid": per-symbol reads normal, but the sequence stays overload
+
+Reading: the lone "mid" during the overload run is a blip. Judged alone it
+looks like normal; judged as part of the sequence, staying in overload is
+cheaper than dropping to normal and climbing back.

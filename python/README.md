@@ -25,6 +25,8 @@ at parity with the TypeScript side.
 - `composable_model_graph.math` - `sigmoid` / `relu` with `forward`, `derivative`,
   `derivative_from_output` (the neural-proof lane), `sensitivity` / `rank_sensitivity`,
   `TransferFunction`.
+- `composable_model_graph.estimation` - `decode_path` / `decode_path_fixed_lag`
+  over `CandidateState` trellises (Viterbi / fixed-lag), domain-free.
 
 ## Run the smoke test
 
