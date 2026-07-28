@@ -27,6 +27,8 @@ at parity with the TypeScript side.
   `TransferFunction`.
 - `composable_model_graph.estimation` - `decode_path` / `decode_path_fixed_lag`
   over `CandidateState` trellises (Viterbi / fixed-lag), domain-free.
+- `composable_model_graph.terminal` - lifecycle/run projections plus comparison,
+  decoded-path, sensitivity, and useful-flow terminal renderers.
 
 ## Run the smoke test
 
@@ -45,5 +47,6 @@ python3 -m pytest
 
 ## Status
 
-At parity with TypeScript on core, evaluators, feedback, comparison, and math.
+At parity with TypeScript on core, evaluators, feedback, comparison, math,
+estimation, and terminal rendering.
 New capabilities continue to land in lockstep across both languages.

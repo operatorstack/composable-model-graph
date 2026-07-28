@@ -1,0 +1,71 @@
+== 1. Sequential Model ==
+┌───────┐    ┌─────────┐    ┌───────┐    ┌────────────┐    ┌───────┐    ┌────────┐    ┌────────┐
+│ Input │───▶│ Receive │───▶│ Parse │───▶│ Validation │───▶│ Route │───▶│ Result │───▶│ Output │
+└───────┘    └─────────┘    └───────┘    └────────────┘    └───────┘    └────────┘    └────────┘
+
+== 2. State Projection Model ==
+Request processing
+
+┌───────┐    ┌─────────┐    ┌───────┐    ┌────────────┐    ┌───────┐    ┌─────────┐    ┌────────┐
+│ Input │───▶│ Receive │───▶│ Parse │───▶│ Validation │───▶│ Route │───▶│ Results │───▶│ Output │
+└───────┘    └─────────┘    └───────┘    └────────────┘    └───────┘    └─────────┘    └────────┘
+                  ▼             ▼                                            ├─ Local result
+               Request       Schema                                          └─ System result
+
+Run
+  1. Collect input  + request
+  2. Parse payload and schema  + parse, + schema
+  3. Validate payload  + validation
+  4. Select route  + route
+  5. Produce local and system results  + localResult, + systemResult
+
+== 3. Evaluation Model ==
+Evaluation model
+
+┌───────┐    ┌───────────┐    ┌────────┐    ┌──────────────────┐
+│ Input │───▶│ Normalize │───▶│ Output │───▶│ Evaluation: pass │
+└───────┘    └───────────┘    └────────┘    └──────────────────┘
+
+Run
+  1. Normalize input
+
+Evaluation: pass  score=0.6
+
+== 4. Feedback Model ==
+Feedback model
+
+┌───────┐    ┌─────────────────┐    ┌────────┐    ┌──────────────────┐    ┌──────────────────┐
+│ Input │───▶│ Transform chain │───▶│ Output │───▶│ Evaluation: pass │───▶│ Feedback: accept │
+└───────┘    └─────────────────┘    └────────┘    └──────────────────┘    └──────────────────┘
+
+Run
+  1. Run transform chain
+
+Evaluation: pass  score=0.6
+Feedback: accept — Respond to the evaluated output
+
+== 5. Branching Model ==
+            ┌─▶ [Policy]   ─┐
+[Input] ───▶ ├              ├─▶ [Decide] ───▶ [Output]
+            └─▶ [Capacity] ─┘
+
+== 6. Comparison Model ==
+[Graph A]  ─┐
+            ├─▶ [Compare: B]
+[Graph B]  ─┘
+Reason: B has the better status (partial vs pass)
+
+== 7. Decoded Path ==
+[idle] ─▶ [ready] ─▶ [ready]
+Total score: 12
+
+== 8. Sensitivity ==
+Sensitivity ranking
+  1. latency ─▶ gradient=3 magnitude=3
+  2. capacity ─▶ gradient=2 magnitude=2
+
+== 9. Useful Flow ==
+[Quality 8] ─┐
+             ├─▶ [Score 2]
+[Cost 4]    ─┘
+

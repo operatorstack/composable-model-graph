@@ -19,4 +19,7 @@ export const workspaceAlias: Record<string, string> = {
   "@composable-model-graph/estimation": fromRoot(
     "./packages/estimation/src/index.ts",
   ),
+  "@composable-model-graph/terminal": fromRoot(
+    "./packages/terminal/src/index.ts",
+  ),
 };

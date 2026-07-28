@@ -177,6 +177,21 @@ importers:
         specifier: workspace:*
         version: link:../../packages/feedback
 
+  examples/17-terminal-graph-view:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@composable-model-graph/estimation':
+        specifier: workspace:*
+        version: link:../../packages/estimation
+      '@composable-model-graph/math':
+        specifier: workspace:*
+        version: link:../../packages/math
+      '@composable-model-graph/terminal':
+        specifier: workspace:*
+        version: link:../../packages/terminal
+
   packages/core: {}
 
   packages/estimation: {}
@@ -194,6 +209,12 @@ importers:
         version: link:../core
 
   packages/math:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/terminal:
     dependencies:
       '@composable-model-graph/core':
         specifier: workspace:*

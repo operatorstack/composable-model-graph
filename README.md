@@ -51,6 +51,7 @@ CHANGELOG.md  the reasoning trail, one entry per change
 | `evaluators` | Generic evaluators returning an evaluation result. |
 | `feedback` | Generic feedback resolvers. |
 | `estimation` | Decode the best path through per-step candidate states (trellis / Viterbi / fixed-lag). |
+| `terminal` | Render the executed graph and completed trace as deterministic terminal text. |
 
 Every package ships in both languages at parity.
 
@@ -89,6 +90,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `12-fan-out-merge` - a DAG (fan-out to two estimators, merge, reconcile) with evaluation + feedback. (ts, python)
 - `13-track-snapping`, `14-hidden-regime`, `15-typo-decode` - the `estimation` primitive in three unrelated fields (tracking, hidden-state inference, text). (ts, python)
 - `16-estimation-in-the-graph` - compose estimation with a traceable graph, evaluation, feedback, signals, and run comparison. (ts, python)
+- `17-terminal-graph-view` - terminal gallery for lifecycle, DAG, comparison, decoded path, sensitivity, and useful-flow projections. (ts, python)
 
 ## Documentation
 
@@ -98,6 +100,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - [03 - Error, sensitivity, feedback](docs/03-error-sensitivity-feedback.md)
 - [04 - Harness bridge](docs/04-harness-bridge.md)
 - [05 - Useful flow and sensitivity](docs/05-useful-flow-and-sensitivity.md)
+- [07 - Terminal graph view](docs/07-terminal-view.md)
 - [06 - Sequential estimation](docs/06-sequential-estimation.md)
 - [Philosophy](docs/philosophy.md) - why it exists, the bar it holds to.
 - [Development discipline](docs/development.md) - how features earn their place (parity, use-case-pulled).
