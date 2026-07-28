@@ -52,6 +52,7 @@ CHANGELOG.md  the reasoning trail, one entry per change
 | `feedback` | Generic feedback resolvers. |
 | `estimation` | Decode the best path through per-step candidate states (trellis / Viterbi / fixed-lag). |
 | `terminal` | Render the executed graph and completed trace as deterministic terminal text. |
+| `constraints` | Check caller-projected relationships and retain status-free findings. |
 
 Every package ships in both languages at parity.
 
@@ -91,6 +92,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `13-track-snapping`, `14-hidden-regime`, `15-typo-decode` - the `estimation` primitive in three unrelated fields (tracking, hidden-state inference, text). (ts, python)
 - `16-estimation-in-the-graph` - compose estimation with a traceable graph, evaluation, feedback, signals, and run comparison. (ts, python)
 - `17-terminal-graph-view` - terminal gallery for lifecycle, DAG, comparison, decoded path, sensitivity, and useful-flow projections. (ts, python)
+- `18-constraint-findings` - release-manifest constraints with separate draft and publish interpretations. (ts, python)
 
 ## Documentation
 
@@ -102,6 +104,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - [05 - Useful flow and sensitivity](docs/05-useful-flow-and-sensitivity.md)
 - [07 - Terminal graph view](docs/07-terminal-view.md)
 - [06 - Sequential estimation](docs/06-sequential-estimation.md)
+- [08 - Constraint findings](docs/08-constraint-findings.md)
 - [Philosophy](docs/philosophy.md) - why it exists, the bar it holds to.
 - [Development discipline](docs/development.md) - how features earn their place (parity, use-case-pulled).
 - [Structure](docs/structure.md) - the dual-language layout.

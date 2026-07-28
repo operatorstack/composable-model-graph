@@ -73,6 +73,11 @@ the public result shapes structurally:
 This is deliberate: stateless functions do not have an inspectable identity
 from which an honest standalone node could be derived.
 
+Constraint reports are similarly not lifecycle stages. When a caller explicitly
+interprets a report through `createConstraintEvaluator`, the resulting
+evaluation appears normally. Raw findings remain caller-owned data and are not
+given an automatic terminal status or node.
+
 ## Width and character sets
 
 Unicode is the default. ASCII is available with `charset: "ascii"` /
