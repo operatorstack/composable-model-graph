@@ -25,7 +25,8 @@
       "@composable-model-graph/evaluators": ["./packages/evaluators/src/index.ts"],
       "@composable-model-graph/feedback": ["./packages/feedback/src/index.ts"],
       "@composable-model-graph/estimation": ["./packages/estimation/src/index.ts"],
-      "@composable-model-graph/terminal": ["./packages/terminal/src/index.ts"]
+      "@composable-model-graph/terminal": ["./packages/terminal/src/index.ts"],
+      "@composable-model-graph/constraints": ["./packages/constraints/src/index.ts"]
     }
   }
 }

@@ -192,6 +192,18 @@ importers:
         specifier: workspace:*
         version: link:../../packages/terminal
 
+  examples/18-constraint-findings:
+    dependencies:
+      '@composable-model-graph/constraints':
+        specifier: workspace:*
+        version: link:../../packages/constraints
+
+  packages/constraints:
+    dependencies:
+      '@composable-model-graph/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/core: {}
 
   packages/estimation: {}

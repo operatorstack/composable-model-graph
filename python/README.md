@@ -29,6 +29,9 @@ at parity with the TypeScript side.
   over `CandidateState` trellises (Viterbi / fixed-lag), domain-free.
 - `composable_model_graph.terminal` - lifecycle/run projections plus comparison,
   decoded-path, sensitivity, and useful-flow terminal renderers.
+- `composable_model_graph.constraints` - deterministic relationship checks,
+  lossless finding reports, generic selector-driven helpers, and an explicit
+  evaluator adapter.
 
 ## Run the smoke test
 
@@ -48,5 +51,5 @@ python3 -m pytest
 ## Status
 
 At parity with TypeScript on core, evaluators, feedback, comparison, math,
-estimation, and terminal rendering.
+estimation, terminal rendering, and constraints.
 New capabilities continue to land in lockstep across both languages.

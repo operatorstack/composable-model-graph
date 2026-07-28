@@ -36,6 +36,7 @@ feedback.
 | `feedback` | Generic ways to turn an `EvaluationResult` into a `FeedbackAction`. |
 | `estimation` | Decode the best path through sequential candidate states. |
 | `terminal` | Project executable topology and completed traces into deterministic text. |
+| `constraints` | Observe caller-projected relationships and retain lossless findings. |
 
 The Python side mirrors these packages with parity (see [structure.md](structure.md)).
 Linearity is a default, not a design limit: the runner is sequential by default and a
@@ -55,5 +56,6 @@ real harness lifecycle later - but that harness is private and is built
 3. [03 - Error, sensitivity, feedback](03-error-sensitivity-feedback.md)
 4. [04 - Harness bridge](04-harness-bridge.md)
 5. [07 - Terminal graph view](07-terminal-view.md)
+6. [08 - Constraint findings](08-constraint-findings.md)
 
 See also: [philosophy.md](philosophy.md), [development.md](development.md), [structure.md](structure.md).

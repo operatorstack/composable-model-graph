@@ -13,7 +13,8 @@ composable-model-graph/
     development.md      how features earn their place (parity, use-case-pulled)
     structure.md        this file
   typescript/          the TypeScript implementation (pnpm workspace)
-    packages/          core, math, evaluators, feedback, estimation, terminal
+    packages/          core, math, evaluators, feedback, estimation, terminal,
+                       constraints
     examples/          01..NN, each domain-free, with README + expected-output
   python/              the Python implementation (src layout)
     src/composable_model_graph/   core, math, evaluators, feedback, estimation
@@ -44,8 +45,8 @@ python3 tests/test_smoke.py        # no install needed (the core is dependency-f
 A capability ships in both `typescript/` and `python/`, with matching names and
 behavior (see `development.md`). Both sides now ship `core` (transforms, the
 sequential/DAG runner, evaluation, feedback, comparison), `math`, `evaluators`,
-`feedback`, `estimation`, and `terminal` at parity; new capabilities land in
-lockstep.
+`feedback`, `estimation`, `terminal`, and `constraints` at parity; new
+capabilities land in lockstep.
 
 ## Two languages, one design
 

@@ -1,0 +1,14 @@
+Release manifest constraints
+
+Checks
+  References resolve: 1 finding
+  API levels supported: 1 finding
+  Consumers reachable: 1 finding
+
+Findings
+  reference.missing: docs references missing artifact theme
+  api-level.outside: docs API level 4 is outside 1-3
+  dependency.unreachable: docs is unreachable from core
+
+Draft interpretation: continue with 3 warnings
+Publish interpretation: block with 3 findings

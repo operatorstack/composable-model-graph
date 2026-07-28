@@ -6,6 +6,20 @@ Change / Why / Domain influence / Languages.
 
 ## [Unreleased]
 
+### constraints: observations without workflow decisions
+- **Change:** new `constraints` packages in TypeScript and Python add open
+  `ConstraintFinding` values, declaration-ordered lossless reports, composition,
+  selector-driven helpers for common structural relationships, projection, and
+  an evaluator adapter that requires caller interpretation. Paired example 18
+  checks a release manifest and applies separate draft and publish
+  interpretations to the same report.
+- **Why:** structural observations must remain reusable across lifecycle
+  contexts instead of being prematurely collapsed into evaluation status or
+  workflow action.
+- **Domain influence:** design by contract, referential integrity, graph
+  reachability, and evidence-preserving inspection.
+- **Languages:** typescript, python.
+
 ### terminal: inspect the graph that actually executed
 - **Change:** dependency-free `terminal` packages in TypeScript and Python add
   `renderGraph` / `render_graph` and `renderRun` / `render_run`. Structure comes

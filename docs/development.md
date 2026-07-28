@@ -57,3 +57,10 @@ Linearity in the runner is a default, not a design limit. When a use case needs 
 different shape (a DAG, a loop, feedback), that shape is a feature pulled in under
 the rules above, in both languages. The library provides tools to solve problems;
 it does not impose a topology.
+
+## Findings are not decisions
+
+A structural check reports what it observed. It does not own severity,
+evaluation status, or the next workflow action. When a feature emits findings,
+composition must retain them without hidden priority or collapse; a separate,
+caller-owned interpretation decides what they mean in the current lifecycle.
