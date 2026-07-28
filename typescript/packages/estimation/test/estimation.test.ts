@@ -75,6 +75,26 @@ describe("decodePath", () => {
     ).toEqual(["a", "b"]);
   });
 
+  it("throws when no path is reachable", () => {
+    const steps = [
+      [
+        { id: "a", score: 1 },
+        { id: "b", score: 1 },
+      ],
+      [
+        { id: "c", score: 1 },
+        { id: "d", score: 1 },
+      ],
+    ];
+    const transitionCost = (): number => Number.POSITIVE_INFINITY;
+    expect(() =>
+      decodePath(steps, { transitionCost, transitionWeight: 1 }),
+    ).toThrow("trellis has no reachable path");
+    expect(() =>
+      decodePathFixedLag(steps, 0, { transitionCost, transitionWeight: 1 }),
+    ).toThrow("trellis has no reachable path");
+  });
+
   it("throws on an empty trellis or an empty step", () => {
     expect(() => decodePath([])).toThrow("trellis has no steps");
     expect(() => decodePath([[{ id: "a", score: 1 }], []])).toThrow(
