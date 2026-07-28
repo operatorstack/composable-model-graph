@@ -6,6 +6,21 @@ Change / Why / Domain influence / Languages.
 
 ## [Unreleased]
 
+### terminal: inspect the graph that actually executed
+- **Change:** dependency-free `terminal` packages in TypeScript and Python add
+  `renderGraph` / `render_graph` and `renderRun` / `render_run`. Structure comes
+  from `ModelGraph`; Input/Output, evaluation, and feedback form a connected
+  lifecycle; top-level state changes come from the completed trace. Dedicated
+  comparison, decoded-path, sensitivity, and useful-flow renderers accept their
+  public result shapes without adding package dependencies. Unicode/ASCII
+  output, width fallback, label overrides, honest DAG layouts, and paired
+  example 17 ship at byte parity.
+- **Why:** graph architecture and produced state should be visible inside the
+  edit/run loop without maintaining a second topology or opening a browser.
+- **Domain influence:** deterministic system inspection and state-transition
+  projection; the example remains deliberately domain-neutral.
+- **Languages:** typescript, python.
+
 ### estimation: decode the best path through per-step candidates
 - **Change:** a new `estimation` package in both languages. `CandidateState`
   (id, score, optional value), a `TransitionCost` callback, `decodePath`

@@ -55,6 +55,17 @@ from .math import (
     sensitivity,
     sigmoid,
 )
+from .terminal import (
+    TerminalCharset,
+    TerminalDetail,
+    TerminalDirection,
+    render_comparison,
+    render_decoded_path,
+    render_graph,
+    render_run,
+    render_sensitivity,
+    render_useful_flow,
+)
 
 __all__ = [
     "Transform",
@@ -99,5 +110,14 @@ __all__ = [
     "DecodedPath",
     "decode_path",
     "decode_path_fixed_lag",
+    "TerminalCharset",
+    "TerminalDetail",
+    "TerminalDirection",
+    "render_comparison",
+    "render_decoded_path",
+    "render_graph",
+    "render_run",
+    "render_sensitivity",
+    "render_useful_flow",
 ]
 __version__ = "0.1.0"
