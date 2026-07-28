@@ -55,6 +55,100 @@ def test_ascii_narrow_fallback():
     )
 
 
+def test_explicit_linear_graph_uses_connection_order():
+    graph = create_model_graph(
+        "declared-line",
+        "Declared line",
+        [_transform("result"), _transform("input"), _transform("validate")],
+        connections=[
+            Connection("input", "validate"),
+            Connection("validate", "result"),
+        ],
+    )
+    assert render_graph(
+        graph, columns=80, show_lifecycle=False
+    ) == "\n".join(
+        [
+            "┌───────┐    ┌──────────┐    ┌────────┐",
+            "│ Input │───▶│ Validate │───▶│ Result │",
+            "└───────┘    └──────────┘    └────────┘",
+        ]
+    )
+    assert (
+        "│ Input │───▶│ Input │───▶│ Validate │───▶│ Result │───▶│ Output │"
+        in render_graph(graph, columns=100)
+    )
+    narrow = render_graph(
+        graph,
+        charset="ascii",
+        columns=10,
+        show_lifecycle=False,
+    )
+    assert "| Input |" in narrow
+    assert "  v" in narrow
+    assert "Edges" not in narrow
+
+
+def test_explicit_linear_run_projects_produced_fields():
+    graph = create_model_graph(
+        "state-line",
+        "State line",
+        [
+            _transform("results"),
+            _transform("parse"),
+            _transform("validation"),
+        ],
+        connections=[
+            Connection("parse", "validation"),
+            Connection("validation", "results"),
+        ],
+    )
+    states = [
+        {},
+        {"parse": "payload", "schema": "v1"},
+        {
+            "parse": "payload",
+            "schema": "v1",
+            "validation": "accepted",
+        },
+        {
+            "parse": "payload",
+            "schema": "v1",
+            "validation": "accepted",
+            "localResult": "created",
+            "systemResult": "recorded",
+        },
+    ]
+    names = {transform.id: transform.name for transform in graph.transforms}
+    order = ["parse", "validation", "results"]
+    run = GraphRun(
+        input=states[0],
+        output=states[3],
+        trace=[
+            TraceStep(
+                transform_id,
+                names[transform_id],
+                states[index],
+                states[index + 1],
+                0,
+                0,
+                0,
+            )
+            for index, transform_id in enumerate(order)
+        ],
+    )
+    output = render_run(
+        graph,
+        run,
+        columns=120,
+        show_lifecycle=False,
+    )
+    assert "│ Parse │───▶│ Validation │───▶│ Results │" in output
+    assert "Schema" in output
+    assert "├─ Local result" in output
+    assert "└─ System result" in output
+
+
 def test_diff_and_duration():
     graph = create_model_graph("diff", "Diff", [_transform("change", "Change")])
     step = TraceStep(
@@ -91,6 +185,18 @@ def test_dag_preserves_edges():
     assert "[Physics]" in output
     assert "[Empirical]" in output
     assert "├─▶ [Reconcile]" in output
+
+
+def test_disconnected_connections_keep_dag_layout():
+    graph = create_model_graph(
+        "not-a-line",
+        "Not a line",
+        [_transform("a"), _transform("b"), _transform("c")],
+        connections=[Connection("a", "b")],
+    )
+    output = render_graph(graph, columns=80, show_lifecycle=False)
+    assert "Edges" in output
+    assert "A ─▶ B" in output
 
 
 def test_invalid_presentation():
@@ -186,8 +292,11 @@ def test_lifecycle_and_analysis_renderers():
 if __name__ == "__main__":
     test_one_node()
     test_ascii_narrow_fallback()
+    test_explicit_linear_graph_uses_connection_order()
+    test_explicit_linear_run_projects_produced_fields()
     test_diff_and_duration()
     test_dag_preserves_edges()
+    test_disconnected_connections_keep_dag_layout()
     test_invalid_presentation()
     test_lifecycle_and_analysis_renderers()
     print("PASS: terminal renderer")

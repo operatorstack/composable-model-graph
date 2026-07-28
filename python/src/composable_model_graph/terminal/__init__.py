@@ -170,6 +170,51 @@ def _topological_order(graph: ModelGraph) -> list[str]:
     return order
 
 
+def _explicit_linear_order(graph: ModelGraph) -> Optional[list[str]]:
+    connections = graph.connections
+    transform_ids = [transform.id for transform in graph.transforms]
+    if not connections or len(transform_ids) < 2:
+        return None
+    if len(connections) != len(transform_ids) - 1:
+        return None
+
+    known = set(transform_ids)
+    successors: dict[str, list[str]] = {
+        transform_id: [] for transform_id in transform_ids
+    }
+    indegree = {transform_id: 0 for transform_id in transform_ids}
+    seen_edges: set[tuple[str, str]] = set()
+    for edge in connections:
+        if edge.src not in known or edge.dst not in known:
+            return None
+        edge_key = (edge.src, edge.dst)
+        if edge_key in seen_edges:
+            return None
+        seen_edges.add(edge_key)
+        successors[edge.src].append(edge.dst)
+        indegree[edge.dst] += 1
+
+    roots = [
+        transform_id for transform_id in transform_ids
+        if indegree[transform_id] == 0
+    ]
+    if len(roots) != 1:
+        return None
+    order: list[str] = []
+    visited: set[str] = set()
+    current: Optional[str] = roots[0]
+    while current is not None:
+        if current in visited:
+            return None
+        visited.add(current)
+        order.append(current)
+        next_ids = successors[current]
+        if len(next_ids) > 1:
+            return None
+        current = next_ids[0] if next_ids else None
+    return order if len(order) == len(transform_ids) else None
+
+
 def _lifecycle_projection(
     graph: ModelGraph,
     transform_nodes: list[_Node],
@@ -178,11 +223,21 @@ def _lifecycle_projection(
     show_evaluation: bool,
     show_feedback: bool,
 ) -> tuple[list[_Node], Optional[list[Any]]]:
+    linear_order = _explicit_linear_order(graph)
+    nodes_by_id = {node.id: node for node in transform_nodes}
+    ordered_transform_nodes = (
+        [nodes_by_id[transform_id] for transform_id in linear_order]
+        if linear_order is not None
+        else transform_nodes
+    )
     if not show_lifecycle:
-        return transform_nodes, graph.connections if graph.connections else None
+        return (
+            ordered_transform_nodes,
+            graph.connections if graph.connections and linear_order is None else None,
+        )
     input_node = _Node("$input", "Input", [], "boundary")
     output_node = _Node("$output", "Output", [], "boundary")
-    nodes = [input_node, *transform_nodes, output_node]
+    nodes = [input_node, *ordered_transform_nodes, output_node]
     edges: list[Any] = []
 
     @dataclass
@@ -235,7 +290,11 @@ def _lifecycle_projection(
         )
         nodes.append(feedback)
         edges.append(Edge(previous, feedback.id))
-    simple_chain = not graph.connections or not graph.transforms
+    simple_chain = (
+        not graph.connections
+        or not graph.transforms
+        or linear_order is not None
+    )
     return nodes, None if simple_chain else edges
 
 

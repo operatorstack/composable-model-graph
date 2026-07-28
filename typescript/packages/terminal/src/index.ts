@@ -254,16 +254,61 @@ function topologicalOrder<I, O>(graph: ModelGraph<I, O>): string[] {
   return order;
 }
 
+function explicitLinearOrder<I, O>(
+  graph: ModelGraph<I, O>,
+): string[] | undefined {
+  const connections = graph.connections;
+  const transformIds = graph.transforms.map((transform) => transform.id);
+  if (!connections?.length || transformIds.length < 2) return undefined;
+  if (connections.length !== transformIds.length - 1) return undefined;
+
+  const known = new Set(transformIds);
+  const successors = new Map(transformIds.map((id) => [id, [] as string[]]));
+  const indegree = new Map(transformIds.map((id) => [id, 0]));
+  const seenEdges = new Set<string>();
+  for (const edge of connections) {
+    if (!known.has(edge.src) || !known.has(edge.dst)) return undefined;
+    const edgeKey = `${edge.src}\0${edge.dst}`;
+    if (seenEdges.has(edgeKey)) return undefined;
+    seenEdges.add(edgeKey);
+    successors.get(edge.src)!.push(edge.dst);
+    indegree.set(edge.dst, indegree.get(edge.dst)! + 1);
+  }
+
+  const roots = transformIds.filter((id) => indegree.get(id) === 0);
+  if (roots.length !== 1) return undefined;
+  const order: string[] = [];
+  const visited = new Set<string>();
+  let current: string | undefined = roots[0];
+  while (current !== undefined) {
+    if (visited.has(current)) return undefined;
+    visited.add(current);
+    order.push(current);
+    const next = successors.get(current)!;
+    if (next.length > 1) return undefined;
+    current = next[0];
+  }
+  return order.length === transformIds.length ? order : undefined;
+}
+
 function lifecycleProjection<I, O>(
   graph: ModelGraph<I, O>,
   transformNodes: NodeProjection[],
   run: GraphRun<I, O> | undefined,
   options: TerminalRunRenderOptions,
 ): { nodes: NodeProjection[]; edges?: EdgeProjection[] } {
+  const linearOrder = explicitLinearOrder(graph);
+  const nodesById = new Map(transformNodes.map((node) => [node.id, node]));
+  const orderedTransformNodes = linearOrder
+    ? linearOrder.map((id) => nodesById.get(id)!)
+    : transformNodes;
   if (options.showLifecycle === false) {
     return {
-      nodes: transformNodes,
-      edges: graph.connections?.length ? [...graph.connections] : undefined,
+      nodes: orderedTransformNodes,
+      edges:
+        graph.connections?.length && !linearOrder
+          ? [...graph.connections]
+          : undefined,
     };
   }
   const input: NodeProjection = {
@@ -278,7 +323,7 @@ function lifecycleProjection<I, O>(
     branches: [],
     kind: "boundary",
   };
-  const nodes = [input, ...transformNodes, output];
+  const nodes = [input, ...orderedTransformNodes, output];
   const edges: EdgeProjection[] = [];
   const order = topologicalOrder(graph);
   if (graph.connections?.length) {
@@ -323,7 +368,9 @@ function lifecycleProjection<I, O>(
     edges.push({ src: previous, dst: feedback.id });
   }
   const isSimpleChain =
-    !graph.connections?.length || graph.transforms.length === 0;
+    !graph.connections?.length ||
+    graph.transforms.length === 0 ||
+    linearOrder !== undefined;
   return { nodes, edges: isSimpleChain ? undefined : edges };
 }
 
