@@ -38,6 +38,10 @@ to every runner root and connects the runner's final topological transform to
 Output. Pass `showLifecycle: false` / `show_lifecycle=False` for the original
 transform-only projection.
 
+When explicit `connections` form one complete path through every transform, the
+renderer derives that path's order from the edges and uses the compact connected
+chain layout. Other connection shapes remain DAG views.
+
 `renderRun` adds a concise step list and compares each trace step's plain-object
 input and output. Top-level added, changed, and removed fields are shown as
 `+`, `~`, and `-`. Added fields that differ from their transform ID appear as

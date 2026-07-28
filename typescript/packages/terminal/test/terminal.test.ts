@@ -49,6 +49,101 @@ describe("terminal graph renderer", () => {
     );
   });
 
+  it("renders an explicit linear graph in connection order", () => {
+    const graph = createModelGraph({
+      id: "declared-line",
+      name: "Declared line",
+      transforms: [
+        transform("result"),
+        transform("input"),
+        transform("validate"),
+      ],
+      connections: [
+        { src: "input", dst: "validate" },
+        { src: "validate", dst: "result" },
+      ],
+    });
+    expect(
+      renderGraph(graph, { columns: 80, showLifecycle: false }),
+    ).toBe(
+      [
+        "┌───────┐    ┌──────────┐    ┌────────┐",
+        "│ Input │───▶│ Validate │───▶│ Result │",
+        "└───────┘    └──────────┘    └────────┘",
+      ].join("\n"),
+    );
+    expect(renderGraph(graph, { columns: 100 })).toContain(
+      "│ Input │───▶│ Input │───▶│ Validate │───▶│ Result │───▶│ Output │",
+    );
+    const narrow = renderGraph(graph, {
+      charset: "ascii",
+      columns: 10,
+      showLifecycle: false,
+    });
+    expect(narrow).toContain("| Input |");
+    expect(narrow).toContain("  v");
+    expect(narrow).not.toContain("Edges");
+  });
+
+  it("projects produced fields onto an explicit linear graph", () => {
+    const graph = createModelGraph({
+      id: "state-line",
+      name: "State line",
+      transforms: [
+        transform("results"),
+        transform("parse"),
+        transform("validation"),
+      ],
+      connections: [
+        { src: "parse", dst: "validation" },
+        { src: "validation", dst: "results" },
+      ],
+    });
+    const states = [
+      {},
+      { parse: "payload", schema: "v1" },
+      {
+        parse: "payload",
+        schema: "v1",
+        validation: "accepted",
+      },
+      {
+        parse: "payload",
+        schema: "v1",
+        validation: "accepted",
+        localResult: "created",
+        systemResult: "recorded",
+      },
+    ];
+    const names = new Map(
+      graph.transforms.map((item) => [item.id, item.name]),
+    );
+    const order = ["parse", "validation", "results"];
+    const run: GraphRun<unknown, unknown> = {
+      input: states[0],
+      output: states[3],
+      trace: order.map((id, index) => ({
+        transformId: id,
+        transformName: names.get(id)!,
+        input: states[index],
+        output: states[index + 1],
+        startedAt: 0,
+        finishedAt: 0,
+        durationMs: 0,
+      })),
+    };
+    const output = renderRun(graph, run, {
+      columns: 120,
+      showLifecycle: false,
+    });
+    expect(output).toContain(
+      "│ Parse │───▶│ Validation │───▶│ Results │",
+    );
+    expect(output).toContain("Schema");
+    expect(output).toContain("├─ Local result");
+    expect(output).toContain("└─ System result");
+  });
+
   it("infers produced fields and reports top-level changes", () => {
     const graph = createModelGraph({
       id: "request-processing",
@@ -224,6 +319,21 @@ describe("terminal graph renderer", () => {
     expect(output).toContain("[Physics]");
     expect(output).toContain("[Empirical]");
     expect(output).toContain("├─▶ [Reconcile]");
+  });
+
+  it("keeps non-linear and disconnected connections in DAG layout", () => {
+    const graph = createModelGraph({
+      id: "not-a-line",
+      name: "Not a line",
+      transforms: [transform("a"), transform("b"), transform("c")],
+      connections: [{ src: "a", dst: "b" }],
+    });
+    const output = renderGraph(graph, {
+      columns: 80,
+      showLifecycle: false,
+    });
+    expect(output).toContain("Edges");
+    expect(output).toContain("A ─▶ B");
   });
 
   it("rejects dishonest or unknown presentation requests", () => {

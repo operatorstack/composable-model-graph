@@ -16,3 +16,7 @@ Lifecycle rendering connects Input, transforms/DAG, Output, evaluation, and
 feedback. The functions return deterministic plain text and never write to
 stdout. The package depends only on core; analysis results are accepted by
 their public structural shapes.
+
+Explicit connections remain authoritative. When they form one complete linear
+path, the renderer orders nodes from those edges and uses the compact chain
+layout; non-linear shapes retain the DAG layout.
