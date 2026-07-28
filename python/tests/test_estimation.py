@@ -101,6 +101,31 @@ def test_default_cost_is_zero() -> None:
     assert path.total_score == 8.0
 
 
+def test_no_reachable_path_raises() -> None:
+    steps = [
+        [CandidateState("a", 1.0), CandidateState("b", 1.0)],
+        [CandidateState("c", 1.0), CandidateState("d", 1.0)],
+    ]
+
+    def infinite_cost(prev, nxt, step_index):
+        return float("inf")
+
+    for decode in (
+        lambda: decode_path(
+            steps, transition_cost=infinite_cost, transition_weight=1.0
+        ),
+        lambda: decode_path_fixed_lag(
+            steps, 0, transition_cost=infinite_cost, transition_weight=1.0
+        ),
+    ):
+        raised = ""
+        try:
+            decode()
+        except ValueError as error:
+            raised = str(error)
+        assert raised == "trellis has no reachable path"
+
+
 def test_single_step_and_single_candidate() -> None:
     one = decode_path([[CandidateState("only", 2.0)]])
     assert one.state_ids == ["only"] and one.total_score == 2.0
@@ -136,6 +161,7 @@ if __name__ == "__main__":
     test_fixed_lag_one_has_enough_lookahead()
     test_tie_break_is_lowest_index()
     test_default_cost_is_zero()
+    test_no_reachable_path_raises()
     test_single_step_and_single_candidate()
     test_errors()
     print("PASS: composable-model-graph python estimation")

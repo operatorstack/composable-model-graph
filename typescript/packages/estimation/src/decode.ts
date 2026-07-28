@@ -80,12 +80,15 @@ function forward(
 function argmaxFinal(cum: number[][]): number {
   const last = cum[cum.length - 1]!;
   let best = NEG_INF;
-  let bestJ = 0;
+  let bestJ = -1;
   for (let j = 0; j < last.length; j++) {
     if (last[j]! > best) {
       best = last[j]!;
       bestJ = j;
     }
+  }
+  if (bestJ < 0 || best === NEG_INF) {
+    throw new Error("trellis has no reachable path");
   }
   return bestJ;
 }
@@ -95,7 +98,11 @@ function backtrack(back: number[][], t: number, j: number): number[] {
   const idx = new Array<number>(t + 1);
   idx[t] = j;
   for (let s = t; s > 0; s--) {
-    idx[s - 1] = back[s]![idx[s]!]!;
+    const previous = back[s]![idx[s]!]!;
+    if (previous < 0) {
+      throw new Error("trellis has no reachable path");
+    }
+    idx[s - 1] = previous;
   }
   return idx;
 }
