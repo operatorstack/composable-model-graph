@@ -1,0 +1,20 @@
+{
+  "kind": "graph",
+  "id": "publication-world",
+  "name": "Protected publication",
+  "nodes": [
+    { "id": "build", "name": "Build" },
+    { "id": "review", "name": "Review" },
+    { "id": "gate", "name": "Publish gate" },
+    { "id": "published", "name": "Published" },
+    { "id": "ci", "name": "CI direct path" }
+  ],
+  "edges": [
+    { "src": "build", "dst": "review" },
+    { "src": "build", "dst": "ci" },
+    { "src": "review", "dst": "gate" },
+    { "src": "gate", "dst": "published" },
+    { "src": "ci", "dst": "published" }
+  ],
+  "options": { "showLifecycle": false, "columns": 100 }
+}
