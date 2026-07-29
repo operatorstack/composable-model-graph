@@ -27,7 +27,32 @@ If `pnpm` is not on PATH, use `npx --yes pnpm@9 exec tsx …`. If `node_modules`
 is missing, hydrate first: `cd "$CMG/typescript" && npx --yes pnpm@9 install`.
 Stdin also works: pass `-` instead of a path and pipe the JSON.
 
-Paste stdout VERBATIM inside a fenced code block. It is plain text with no ANSI.
+### Pasting the output (READ THIS — the #1 cause of "it looks broken")
+
+Always paste stdout **inside a triple-backtick code fence**. This is not
+cosmetic. GUI chats (Codex, ChatGPT) render un-fenced text in a *proportional*
+font and wrap long lines — which detaches every box border from its label and
+makes the diagram look shattered. Only a code fence forces monospace and lets a
+wide diagram scroll instead of wrap. A real terminal (Claude Code) is monospace
+either way, but fence it always so it survives both hosts.
+
+Keep the diagram **narrow** so it doesn't wrap even if the fence is imperfect:
+
+- Prefer the default vertical (top-to-bottom) layout for chat. Do NOT force
+  `direction: "horizontal"` — a wide chain overflows the chat width and wraps
+  into unreadable fragments (this makes it worse, not better).
+- Keep node count ≤ ~12; split a big system into concern-scoped sub-diagrams
+  rather than one wide graph. Long `name`s are fine — in the default (`auto`)
+  direction, when a compact chain or diamond would overflow the column budget
+  the renderer auto-abbreviates each box to a short code and appends a `Legend`
+  mapping every code back to its full name, so the shape stays one readable row
+  instead of falling to the stacked vertical list. (Forcing `direction` off
+  `auto` disables this; codes are derived from the names, never invented.)
+- If the host shows boxes as tofu (□) or mojibake, add `charset: "ascii"`.
+
+If after all that the host still mangles box-drawing, say so and fall back to a
+plain fenced indented list (`Parent → childA, childB`) — still honest, still no
+invented edges.
 
 ## The spec
 
@@ -43,7 +68,7 @@ Paste stdout VERBATIM inside a fenced code block. It is plain text with no ANSI.
   "edges": [                    // omit entirely = a left-to-right chain in node order
     { "src": "build", "dst": "gate" }
   ],
-  "options": { "showLifecycle": false, "columns": 100 },
+  "options": { "showLifecycle": false, "direction": "vertical" },
   "b": {  }                     // a second graph, only for kind "comparison"
 }
 ```
@@ -63,11 +88,15 @@ Paste stdout VERBATIM inside a fenced code block. It is plain text with no ANSI.
 - `showLifecycle: false` — draw the transform topology plainly. Use this for
   ordinary system diagrams; the lifecycle boxes (Input/Output/evaluation) are
   CMG-pipeline-specific and usually noise for a generic architecture.
-- `columns: 100` — make layout deterministic (horizontal if it fits, else
-  vertical). Omit and it uses terminal width.
-- `charset: "ascii"` — if the host mangles unicode box-drawing.
+- `direction: "vertical"` — force the narrow top-to-bottom layout. Best default
+  for chat; a horizontal chain gets wide and wraps in GUI hosts.
+- `columns` — the horizontal-vs-vertical threshold. A *small* value (e.g. `40`)
+  keeps it vertical/narrow; a large value invites the wide horizontal chain that
+  wraps in chat. Omit and it uses terminal width.
+- `charset: "ascii"` — if the host mangles unicode box-drawing (□/mojibake).
 - A fan-out/merge or multi-path graph renders as a node list + an explicit edge
   list (honest for a DAG); a single complete path renders as a compact chain.
+  Neither is wrong — but both still need a code fence to look right in chat.
 
 ## Mapping craft
 

@@ -143,6 +143,58 @@ function normalized(value: string): string {
   return value.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
+// Derive a short, deterministic code from a display label. Multi-word labels
+// use the initials of each word; a single word uses its first letter plus its
+// leading consonants. The result is uppercased and clamped to 4 chars.
+function baseCode(label: string): string {
+  const words = label
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .split(/\s+/)
+    .filter((word) => /[a-zA-Z0-9]/.test(word));
+  if (words.length >= 2) {
+    return words
+      .map((word) => word.replace(/[^a-zA-Z0-9]/g, "")[0] ?? "")
+      .join("")
+      .slice(0, 4)
+      .toUpperCase();
+  }
+  const word = (words[0] ?? label).replace(/[^a-zA-Z0-9]/g, "");
+  if (word.length === 0) return label.toUpperCase();
+  const consonants = [word[0]!, ...[...word.slice(1)].filter((c) => !/[aeiou]/i.test(c))];
+  const code = consonants.join("").slice(0, 3).toUpperCase();
+  return code.length >= 2 ? code : word.slice(0, 3).toUpperCase();
+}
+
+// Assign each node a unique short code, in node order (collisions get the
+// shortest numeric suffix that stays unique) — deterministic for a given set.
+function abbreviateNodes(nodes: NodeProjection[]): {
+  nodes: NodeProjection[];
+  legend: Array<{ code: string; label: string }>;
+} {
+  const used = new Set<string>();
+  const legend: Array<{ code: string; label: string }> = [];
+  const abbreviated = nodes.map((node) => {
+    if (node.kind !== "transform") return node;
+    let code = baseCode(node.label);
+    if (used.has(code)) {
+      let suffix = 2;
+      while (used.has(`${code}${suffix}`)) suffix += 1;
+      code = `${code}${suffix}`;
+    }
+    used.add(code);
+    if (code !== node.label) legend.push({ code, label: node.label });
+    return { ...node, label: code };
+  });
+  return { nodes: abbreviated, legend };
+}
+
+function legendBlock(legend: Array<{ code: string; label: string }>): string {
+  return ["", "Legend", ...legend.map((entry) => `  ${entry.code} = ${entry.label}`)].join(
+    "\n",
+  );
+}
+
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
@@ -574,32 +626,47 @@ function architecture<I, O>(
   const edges = projection.edges;
 
   if (edges) {
-    const lifecycleDiamond = lifecycleDiamondLayout(nodes, glyphs, edges);
-    const lifecycleDiamondWidth = lifecycleDiamond
-      ? Math.max(
-          ...lifecycleDiamond.split("\n").map((line) => line.length),
-        )
-      : 0;
-    if (
-      lifecycleDiamond &&
-      direction !== "vertical" &&
-      lifecycleDiamondWidth <= columns
-    ) {
-      return lifecycleDiamond;
+    // The widest compact diamond (lifecycle, then simple) that fits `columns`.
+    const diamondFor = (ns: NodeProjection[]): string | undefined => {
+      const lifecycle = lifecycleDiamondLayout(ns, glyphs, edges);
+      if (
+        lifecycle &&
+        Math.max(...lifecycle.split("\n").map((line) => line.length)) <= columns
+      ) {
+        return lifecycle;
+      }
+      const simple = simpleDiamondLayout(ns, glyphs, edges);
+      if (
+        simple &&
+        Math.max(...simple.split("\n").map((line) => line.length)) <= columns
+      ) {
+        return simple;
+      }
+      return undefined;
+    };
+    if (direction !== "vertical") {
+      const full = diamondFor(nodes);
+      if (full) return full;
     }
-    const diamond = simpleDiamondLayout(nodes, glyphs, edges);
-    const diamondWidth = diamond
-      ? Math.max(...diamond.split("\n").map((line) => line.length))
-      : 0;
-    if (diamond && direction !== "vertical" && diamondWidth <= columns) {
-      return diamond;
-    }
-    if (direction === "horizontal" && diamond && diamondWidth > columns) {
-      throw new Error(
-        `horizontal terminal layout requires ${diamondWidth} columns; received ${columns}`,
-      );
+    // Auto only: if a full-label diamond overflows, retry with short codes and
+    // append a legend before giving up on the compact shape.
+    if (direction === "auto") {
+      const { nodes: abbreviated, legend } = abbreviateNodes(nodes);
+      if (legend.length) {
+        const compact = diamondFor(abbreviated);
+        if (compact) return `${compact}\n${legendBlock(legend)}`;
+      }
     }
     if (direction === "horizontal") {
+      const diamond = simpleDiamondLayout(nodes, glyphs, edges);
+      const diamondWidth = diamond
+        ? Math.max(...diamond.split("\n").map((line) => line.length))
+        : 0;
+      if (diamond && diamondWidth > columns) {
+        throw new Error(
+          `horizontal terminal layout requires ${diamondWidth} columns; received ${columns}`,
+        );
+      }
       throw new Error(
         "horizontal terminal layout is unavailable for this DAG shape",
       );
@@ -616,6 +683,19 @@ function architecture<I, O>(
       );
     }
     return horizontal;
+  }
+  // Auto only: a wide chain gets short codes + a legend before the vertical
+  // fallback, so a near-linear flow stays a single readable row.
+  if (direction === "auto" && widest > columns) {
+    const { nodes: abbreviated, legend } = abbreviateNodes(nodes);
+    if (legend.length) {
+      const compact = horizontalLayout(abbreviated, glyphs);
+      const compactWidth = Math.max(
+        0,
+        ...compact.split("\n").map((line) => line.length),
+      );
+      if (compactWidth <= columns) return `${compact}\n${legendBlock(legend)}`;
+    }
   }
   if (direction === "vertical" || widest > columns) {
     return verticalLayout(nodes, glyphs);
