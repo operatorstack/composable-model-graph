@@ -85,6 +85,46 @@ describe("terminal graph renderer", () => {
     expect(narrow).not.toContain("Edges");
   });
 
+  it("abbreviates to short codes and adds a legend when a chain overflows", () => {
+    const graph = createModelGraph({
+      id: "ingest",
+      name: "Ingest",
+      transforms: [
+        transform("ingest"),
+        transform("normalize"),
+        transform("index"),
+      ],
+      connections: [
+        { src: "ingest", dst: "normalize" },
+        { src: "normalize", dst: "index" },
+      ],
+    });
+    // Full labels overflow 40 columns; short codes fit, so the compact chain
+    // survives and a legend maps each code back to its name.
+    expect(
+      renderGraph(graph, {
+        columns: 40,
+        showLifecycle: false,
+        labels: {
+          ingest: "Ingest source records",
+          normalize: "Normalize schema fields",
+          index: "Build the search index",
+        },
+      }),
+    ).toBe(
+      [
+        "┌─────┐    ┌─────┐    ┌──────┐",
+        "│ ISR │───▶│ NSF │───▶│ BTSI │",
+        "└─────┘    └─────┘    └──────┘",
+        "",
+        "Legend",
+        "  ISR = Ingest source records",
+        "  NSF = Normalize schema fields",
+        "  BTSI = Build the search index",
+      ].join("\n"),
+    );
+  });
+
   it("projects produced fields onto an explicit linear graph", () => {
     const graph = createModelGraph({
       id: "state-line",

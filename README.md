@@ -93,6 +93,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `16-estimation-in-the-graph` - compose estimation with a traceable graph, evaluation, feedback, signals, and run comparison. (ts, python)
 - `17-terminal-graph-view` - terminal gallery for lifecycle, DAG, comparison, decoded path, sensitivity, and useful-flow projections. (ts, python)
 - `18-constraint-findings` - release-manifest constraints with separate draft and publish interpretations. (ts, python)
+- `19-render-json` - build and render a graph from a JSON spec (path or stdin), for tools and agents that hold a graph as data. (ts, python)
 
 ## Documentation
 

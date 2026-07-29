@@ -1,0 +1,22 @@
+┌───────┐
+│ Build │
+└───────┘
+┌────────┐
+│ Review │
+└────────┘
+┌──────────────┐
+│ Publish gate │
+└──────────────┘
+┌───────────┐
+│ Published │
+└───────────┘
+┌────────────────┐
+│ CI direct path │
+└────────────────┘
+
+Edges
+  Build ─▶ Review
+  Build ─▶ CI direct path
+  Review ─▶ Publish gate
+  Publish gate ─▶ Published
+  CI direct path ─▶ Published

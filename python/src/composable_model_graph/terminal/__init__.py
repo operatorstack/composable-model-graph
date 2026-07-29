@@ -5,6 +5,7 @@ from __future__ import annotations
 import shutil
 import math
 import json
+import re
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping, Optional
 
@@ -63,6 +64,57 @@ def _readable_label(value: str) -> str:
 
 def _normalized(value: str) -> str:
     return "".join(char.lower() for char in value if char.isalnum())
+
+
+def _base_code(label: str) -> str:
+    """Derive a short, deterministic code from a display label.
+
+    Multi-word labels use the initials of each word; a single word uses its
+    first letter plus its leading consonants. Uppercased, clamped to 4 chars.
+    """
+    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", label)
+    spaced = re.sub(r"[_-]+", " ", spaced)
+    words = [w for w in spaced.split() if re.search(r"[a-zA-Z0-9]", w)]
+    if len(words) >= 2:
+        return "".join(
+            re.sub(r"[^a-zA-Z0-9]", "", w)[:1] for w in words
+        )[:4].upper()
+    word = re.sub(r"[^a-zA-Z0-9]", "", words[0] if words else label)
+    if not word:
+        return label.upper()
+    consonants = [word[0]] + [c for c in word[1:] if c not in "aeiouAEIOU"]
+    code = "".join(consonants)[:3].upper()
+    return code if len(code) >= 2 else word[:3].upper()
+
+
+def _abbreviate_nodes(
+    nodes: list["_Node"],
+) -> tuple[list["_Node"], list[tuple[str, str]]]:
+    """Assign each transform node a unique short code, in node order."""
+    used: set[str] = set()
+    legend: list[tuple[str, str]] = []
+    result: list[_Node] = []
+    for node in nodes:
+        if node.kind != "transform":
+            result.append(node)
+            continue
+        code = _base_code(node.label)
+        if code in used:
+            suffix = 2
+            while f"{code}{suffix}" in used:
+                suffix += 1
+            code = f"{code}{suffix}"
+        used.add(code)
+        if code != node.label:
+            legend.append((code, node.label))
+        result.append(_Node(node.id, code, node.branches, node.kind))
+    return result, legend
+
+
+def _legend_block(legend: list[tuple[str, str]]) -> str:
+    return "\n".join(
+        ["", "Legend", *[f"  {code} = {label}" for code, label in legend]]
+    )
 
 
 def _state_diff(step: TraceStep) -> _Diff:
@@ -487,34 +539,46 @@ def _architecture(
     glyphs = ASCII if charset == "ascii" else UNICODE
     resolved_columns = _columns(columns)
     if edges:
-        lifecycle_diamond = _lifecycle_diamond_layout(nodes, glyphs, edges)
-        lifecycle_diamond_width = (
-            max(map(len, lifecycle_diamond.splitlines()), default=0)
-            if lifecycle_diamond
-            else 0
-        )
-        if (
-            lifecycle_diamond
-            and direction != "vertical"
-            and lifecycle_diamond_width <= resolved_columns
-        ):
-            return lifecycle_diamond
-        diamond = _simple_diamond_layout(nodes, glyphs, edges)
-        diamond_width = (
-            max(map(len, diamond.splitlines()), default=0) if diamond else 0
-        )
-        if (
-            diamond
-            and direction != "vertical"
-            and diamond_width <= resolved_columns
-        ):
-            return diamond
-        if direction == "horizontal" and diamond and diamond_width > resolved_columns:
-            raise ValueError(
-                f"horizontal terminal layout requires {diamond_width} columns; "
-                f"received {resolved_columns}"
-            )
+        # The widest compact diamond (lifecycle, then simple) that fits columns.
+        def diamond_for(ns: list[_Node]) -> Optional[str]:
+            lifecycle = _lifecycle_diamond_layout(ns, glyphs, edges)
+            if (
+                lifecycle
+                and max(map(len, lifecycle.splitlines()), default=0)
+                <= resolved_columns
+            ):
+                return lifecycle
+            simple = _simple_diamond_layout(ns, glyphs, edges)
+            if (
+                simple
+                and max(map(len, simple.splitlines()), default=0)
+                <= resolved_columns
+            ):
+                return simple
+            return None
+
+        if direction != "vertical":
+            full = diamond_for(nodes)
+            if full is not None:
+                return full
+        # Auto only: if a full-label diamond overflows, retry with short codes
+        # and append a legend before giving up on the compact shape.
+        if direction == "auto":
+            abbreviated, legend = _abbreviate_nodes(nodes)
+            if legend:
+                compact = diamond_for(abbreviated)
+                if compact is not None:
+                    return f"{compact}\n{_legend_block(legend)}"
         if direction == "horizontal":
+            diamond = _simple_diamond_layout(nodes, glyphs, edges)
+            diamond_width = (
+                max(map(len, diamond.splitlines()), default=0) if diamond else 0
+            )
+            if diamond and diamond_width > resolved_columns:
+                raise ValueError(
+                    f"horizontal terminal layout requires {diamond_width} columns; "
+                    f"received {resolved_columns}"
+                )
             raise ValueError(
                 "horizontal terminal layout is unavailable for this DAG shape"
             )
@@ -528,6 +592,17 @@ def _architecture(
                 f"received {resolved_columns}"
             )
         return horizontal
+    # Auto only: a wide chain gets short codes + a legend before the vertical
+    # fallback, so a near-linear flow stays a single readable row.
+    if direction == "auto" and widest > resolved_columns:
+        abbreviated, legend = _abbreviate_nodes(nodes)
+        if legend:
+            compact = _horizontal_layout(abbreviated, glyphs)
+            compact_width = max(
+                (len(line) for line in compact.splitlines()), default=0
+            )
+            if compact_width <= resolved_columns:
+                return f"{compact}\n{_legend_block(legend)}"
     if direction == "vertical" or widest > resolved_columns:
         return _vertical_layout(nodes, glyphs)
     return horizontal
