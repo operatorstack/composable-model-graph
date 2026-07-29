@@ -89,6 +89,41 @@ def test_explicit_linear_graph_uses_connection_order():
     assert "Edges" not in narrow
 
 
+def test_abbreviates_and_adds_legend_when_chain_overflows():
+    graph = create_model_graph(
+        "ingest",
+        "Ingest",
+        [_transform("ingest"), _transform("normalize"), _transform("index")],
+        connections=[
+            Connection("ingest", "normalize"),
+            Connection("normalize", "index"),
+        ],
+    )
+    # Full labels overflow 40 columns; short codes fit, so the compact chain
+    # survives and a legend maps each code back to its name.
+    assert render_graph(
+        graph,
+        columns=40,
+        show_lifecycle=False,
+        labels={
+            "ingest": "Ingest source records",
+            "normalize": "Normalize schema fields",
+            "index": "Build the search index",
+        },
+    ) == "\n".join(
+        [
+            "┌─────┐    ┌─────┐    ┌──────┐",
+            "│ ISR │───▶│ NSF │───▶│ BTSI │",
+            "└─────┘    └─────┘    └──────┘",
+            "",
+            "Legend",
+            "  ISR = Ingest source records",
+            "  NSF = Normalize schema fields",
+            "  BTSI = Build the search index",
+        ]
+    )
+
+
 def test_explicit_linear_run_projects_produced_fields():
     graph = create_model_graph(
         "state-line",
