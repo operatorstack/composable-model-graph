@@ -6,6 +6,21 @@ Change / Why / Domain influence / Languages.
 
 ## [Unreleased]
 
+### Example 20: find where two runs diverge (flat-floor sensor)
+- **Change:** a self-contained, dual-language worked example composes scan
+  validation, inclusive ray-angle generation, analytic ground-plane casting,
+  identity-frame point reconstruction, and a plane-residual evaluator. A healthy
+  baseline and a run with an injected edge-measurement fault expose their first
+  trace divergence at ray cast, and the executable graph is rendered through the
+  terminal package so the diagram cannot drift from the computation.
+- **Why:** demonstrate `compareRuns` divergence localization on a small story a
+  reader can follow without any sensor or robotics background - a depth sensor
+  above a flat floor whose two edge columns report an inconsistent distance.
+- **Domain influence:** ray-plane intersection geometry and boundary-fault
+  diagnosis; `z = h(1 - s)` explains why a measurement inconsistency produces a
+  constant column offset and why a viewing-angle error alone does not.
+- **Languages:** typescript, python.
+
 ### constraints: observations without workflow decisions
 - **Change:** new `constraints` packages in TypeScript and Python add open
   `ConstraintFinding` values, declaration-ordered lossless reports, composition,
