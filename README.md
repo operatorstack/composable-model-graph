@@ -94,6 +94,7 @@ In [`typescript/examples/`](typescript/examples) and, where ported, in
 - `17-terminal-graph-view` - terminal gallery for lifecycle, DAG, comparison, decoded path, sensitivity, and useful-flow projections. (ts, python)
 - `18-constraint-findings` - release-manifest constraints with separate draft and publish interpretations. (ts, python)
 - `19-render-json` - build and render a graph from a JSON spec (path or stdin), for tools and agents that hold a graph as data. (ts, python)
+- `20-lidar-plane-residual` - find where two runs of the same pipeline diverge, using a beginner-friendly flat-floor sensor story. (ts, python)
 
 ## Documentation
 

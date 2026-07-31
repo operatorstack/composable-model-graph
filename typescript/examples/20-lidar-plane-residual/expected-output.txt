@@ -1,0 +1,52 @@
+Flat-floor depth sensor: locate the faulty stage
+
+CMG model - injected fault
+┌───────┐
+│ Input │
+└───────┘
+  ▼
+┌────────────────────┐
+│ Scan configuration │
+└────────────────────┘
+  ▼
+┌──────────────────────┐
+│ Ray angle generation │
+└──────────────────────┘
+  ▼
+┌──────────┐
+│ Ray cast │
+└──────────┘
+  ▼
+┌─────────────────┐
+│ Frame transform │
+└─────────────────┘
+  ▼
+┌────────┐
+│ Output │
+└────────┘
+  ▼
+┌────────────┐
+│ Evaluation │
+└────────────┘
+
+scan: 9 x 3, azimuth [-45, 45] deg, elevation [-30, 0] deg
+sensor height: 1.000 m; comparison plane: z = 0
+
+Baseline - consistent cast and reconstruction
+  status:         pass
+  max |z|:        0.000 m
+  left mean z:    +0.000 m
+  right mean z:   +0.000 m
+  interior |z|:   0.000 m
+
+Fault injection - edge ranges scaled 0.92 / 1.08
+  status:         fail
+  max |z|:        0.080 m
+  left mean z:    +0.080 m
+  right mean z:   -0.080 m
+  interior |z|:   0.000 m
+
+first divergent step: 2 (ray-cast)
+invariant: z = h(1 - s), so edge offset is independent of ray angle
+reading: angle generation and identity frame transform stay equal; the
+trace localizes this worked fault to the ray-cast range boundary.
